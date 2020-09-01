@@ -1,4 +1,4 @@
-# Assignment 1
+# Assignment 1: Rotation and Projection
 
 * `get_model_matrix(float rotation_angle)` in `main.cpp`: 
 
