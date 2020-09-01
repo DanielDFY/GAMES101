@@ -58,6 +58,8 @@ int main(){
     std::cout << std::endl;
 
     std::cout << "********************* transformation *********************" << std::endl;
+    // Given point(2, 1), rotate it around the origin
+    // for 45 degrees, then translate it with vector(1, 2).
     Eigen::Vector3f p(2.0f, 1.0f, 1.0f);
     Eigen::Matrix3f rotation, translation;
     constexpr float theta = 45.0f / 180.0f * M_PI;
