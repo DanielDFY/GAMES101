@@ -39,4 +39,4 @@ make
 
 A triangle rotate clockwise around Z axis for 20 degrees. 
 
-<img src="image/output.png" alt="./Rasterizer -r 20" style="zoom:50%;" />
+![output.png](image/output.png)
