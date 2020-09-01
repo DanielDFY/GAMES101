@@ -10,7 +10,7 @@
 
 
 
-To enable rotation around arbitrary axis that passes the origin, uncomment macro `ARBITRARY_AXIS` in `main.cpp`, and change the valuable `axis`  to the axis you want.
+To enable rotation around **arbitrary axis that passes the origin**, uncomment macro `ARBITRARY_AXIS` in `main.cpp`, and change the valuable `axis`  to the axis you want.
 
 * `get_rotation(Eigen::Vector3f axis, float rotation_angle)` in `main.cpp`:
 
@@ -37,6 +37,6 @@ make
 
 ## Image
 
-A triangle rotate clockwise around Z axis for 20 degrees. 
+A triangle rotate counter-clockwise around Z axis for 20 degrees. 
 
 ![output.png](image/output.png)
