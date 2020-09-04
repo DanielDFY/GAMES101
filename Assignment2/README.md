@@ -30,9 +30,7 @@ make
 
 ## Image
 
-A triangle rotate counter-clockwise around Z axis for 20 degrees. 
-
-| Scene Name | Two Triangle(No anti-aliasing)                               | Two Triangle(4x SSAA)                                        |
+| Scene Name | Two Triangles(No anti-aliasing)                              | Two Triangles(4x SSAA)                                       |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Overview   | ![output_with_no_anti_aliasing](image/output_with_no_anti_aliasing.png) | ![output_with_4x_super_sampling_anti_aliasing](image/output_with_4x_super_sampling_anti_aliasing.png) |
 | Detail     | ![no_anti_aliasing_detail](image/no_anti_aliasing_detail.png) | ![4x_super_sampling_anti_aliasing_detail](image/4x_super_sampling_anti_aliasing_detail.png) |
