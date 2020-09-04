@@ -10,7 +10,7 @@
 
 
 
-To enable rotation around **arbitrary axis that passes the origin**, uncomment macro `ARBITRARY_AXIS` in `main.cpp`, and change the valuable `axis`  to the axis you want.
+To enable rotation around **arbitrary axis that passes the origin**, uncomment the definition of macro `ARBITRARY_AXIS` in `main.cpp`, and change the valuable `axis`  to the axis you want.
 
 * `get_rotation(Eigen::Vector3f axis, float rotation_angle)` in `main.cpp`:
 

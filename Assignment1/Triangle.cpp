@@ -12,10 +12,6 @@ Triangle::Triangle() {
     color[0] << 0.0, 0.0, 0.0;
     color[1] << 0.0, 0.0, 0.0;
     color[2] << 0.0, 0.0, 0.0;
-
-    tex_coords[0] << 0.0, 0.0;
-    tex_coords[1] << 0.0, 0.0;
-    tex_coords[2] << 0.0, 0.0;
 }
 
 void Triangle::set_vertex(int ind, Eigen::Vector3f ver) { v[ind] = ver; }
@@ -39,5 +35,5 @@ std::array<Vector4f, 3> Triangle::to_vector4() const {
     std::transform(std::begin(v), std::end(v), res.begin(), [](auto& vec) {
         return Vector4f(vec.x(), vec.y(), vec.z(), 1.f);
     });
-    return std::move(res);
+    return res;
 }

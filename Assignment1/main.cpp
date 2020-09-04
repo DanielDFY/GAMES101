@@ -5,13 +5,13 @@
 #include <opencv2/opencv.hpp>
 
 #include "Triangle.hpp"
-#include "rasterizer.hpp"
+#include "Rasterizer.hpp"
 
-// enable rotation around arbitrary axis that passes the origin
+// Enable rotation around arbitrary axis that passes the origin
 // #define ARBITRARY_AXIS
 
 #ifdef ARBITRARY_AXIS
-// now rotate around given axis
+// Now rotate around given axis
 Eigen::Vector3f axis(0.0f, 1.0f, 0.0f);
 #endif
 

@@ -10,7 +10,6 @@ class Triangle {
     
     // Per vertex values
     Vector3f color[3];      // color at each vertex;
-    Vector2f tex_coords[3]; // texture u,v
     Vector3f normal[3];     // normal vector for each vertex
 
     Triangle();
