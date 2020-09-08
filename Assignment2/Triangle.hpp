@@ -9,8 +9,8 @@ public:
     Vector3f v[3]; // the original coordinates of the triangle, v0, v1, v2 in counter clockwise order
     
     // Per vertex values
+    Vector3f normal[3];     // normal vector at each vertex
     Vector3f color[3];      // color at each vertex;
-    Vector3f normal[3];     // normal vector for each vertex
 
     Triangle();
 

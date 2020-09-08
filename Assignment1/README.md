@@ -22,6 +22,8 @@ To enable rotation around **arbitrary axis that passes the origin**, uncomment t
 
 ## Run
 
+Modify the path in` CMakeLists.txt`
+
 ```
 mkdir build
 cd build

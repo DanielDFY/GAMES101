@@ -5,16 +5,20 @@
 #include <stdexcept>
 
 Triangle::Triangle() {
-    v[0] << 0,0,0;
-    v[1] << 0,0,0;
-    v[2] << 0,0,0;
+    v[0] << 0.0f, 0.0f, 0.0f;
+    v[1] << 0.0f, 0.0f, 0.0f;
+    v[2] << 0.0f, 0.0f, 0.0f;
 
-    color[0] << 0.0, 0.0, 0.0;
-    color[1] << 0.0, 0.0, 0.0;
-    color[2] << 0.0, 0.0, 0.0;
+    normal[0] << 0.0f, 0.0f, 0.0f;
+    normal[1] << 0.0f, 0.0f, 0.0f;
+    normal[2] << 0.0f, 0.0f, 0.0f;
+
+    color[0] << 0.0f, 0.0f, 0.0f;
+    color[1] << 0.0f, 0.0f, 0.0f;
+    color[2] << 0.0f, 0.0f, 0.0f;
 }
 
-void Triangle::set_vertex(int ind, Eigen::Vector3f ver) { v[ind] = ver; }
+void Triangle::set_vertex(int ind, Vector3f ver) { v[ind] = ver; }
 
 void Triangle::set_normal(int ind, Vector3f n) { normal[ind] = n; }
 

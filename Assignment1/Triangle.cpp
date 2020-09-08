@@ -14,7 +14,7 @@ Triangle::Triangle() {
     color[2] << 0.0, 0.0, 0.0;
 }
 
-void Triangle::set_vertex(int ind, Eigen::Vector3f ver) { v[ind] = ver; }
+void Triangle::set_vertex(int ind, Vector3f ver) { v[ind] = ver; }
 
 void Triangle::set_normal(int ind, Vector3f n) { normal[ind] = n; }
 
