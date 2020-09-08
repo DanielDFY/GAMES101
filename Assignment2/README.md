@@ -16,7 +16,7 @@ To enable **4x SSAA** (Super sampling anti-aliasing), uncomment the definition o
 
 ## Run
 
-Modify the path in` CMakeLists.txt`
+Modify the path in `CMakeLists.txt`
 
 ```
 mkdir build

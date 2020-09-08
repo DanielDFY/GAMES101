@@ -28,7 +28,7 @@ To enable texture sampling with **bilinear interpolation**, uncomment the defini
 
 ## Run
 
-Modify the path in` CMakeLists.txt`
+Modify the path in `CMakeLists.txt`
 
 ```
 mkdir build
