@@ -22,6 +22,14 @@ To enable anti-aliasing, uncomment the definition of macro `ANTI_ALIASING` in `m
 
 
 
+The color calculation is based on the relative ratio value of distance from the sample point to its nearest 4 pixels.
+
+> ![color_intensity](image\color_intensity.png)
+>
+> intensity = min_dist_squared / current_dist_squared
+
+
+
 ## Run
 
 Modify the path in `CMakeLists.txt`
@@ -41,8 +49,8 @@ make
 
 
 
-| Texture Sampling Method | Default                                                      | Bilinear Interpolation                                       |
-| ----------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Overview                | ![bezier_curve_without_anti_aliasing](image/bezier_curve_without_anti_aliasing.png) | ![bezier_curve_with_anti_aliasing](image/bezier_curve_with_anti_aliasing.png) |
-| Detail                  | ![bezier_curve_without_anti_aliasing_detail](image/bezier_curve_without_anti_aliasing_detail.png) | ![bezier_curve_with_anti_aliasing_detail](image/bezier_curve_with_anti_aliasing_detail.png) |
+| Method   | Default                                                      | Anti-aliasing                                                |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Overview | ![bezier_curve_without_anti_aliasing](image/bezier_curve_without_anti_aliasing.png) | ![bezier_curve_with_anti_aliasing](image/bezier_curve_with_anti_aliasing.png) |
+| Detail   | ![bezier_curve_without_anti_aliasing_detail](image/bezier_curve_without_anti_aliasing_detail.png) | ![bezier_curve_with_anti_aliasing_detail](image/bezier_curve_with_anti_aliasing_detail.png) |
 
