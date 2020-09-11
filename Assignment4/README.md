@@ -24,7 +24,7 @@ To enable anti-aliasing, uncomment the definition of macro `ANTI_ALIASING` in `m
 
 The color calculation is based on the relative ratio value of distance from the sample point to its nearest 4 pixels.
 
-> ![color_intensity](image\color_intensity.png)
+> ![color_intensity](image/color_intensity.png)
 >
 > intensity = min_dist_squared / current_dist_squared
 
