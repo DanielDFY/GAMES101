@@ -21,8 +21,18 @@ Implement both rasterization and ray tracing.
 
 ### Rasterization
 
-// todo
+* Real-time displaying a textured cow with Blinn-Phong lighting model and bilinear interpolation texture sampling.
+
+  ![Assignment3](Assignment3/image/output_texture_bilinear.png)
+
+* Bézier Curve generation with anti-aliasing.
+
+  ![Assignment4](Assignment4/image/bezier_curve_with_anti_aliasing.png)
 
 ### Ray Tracing
 
-// todo
+* Whitted-Style ray tracing (implement Blinn-Phong lighting model with shadow effects and different materials).
+
+  ![Assignment5](Assignment5/image/output.png)
+
+* // todo

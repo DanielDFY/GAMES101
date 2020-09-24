@@ -47,8 +47,6 @@ make
 
 ## Image
 
-
-
 | Method   | Default                                                      | Anti-aliasing                                                |
 | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Overview | ![bezier_curve_without_anti_aliasing](image/bezier_curve_without_anti_aliasing.png) | ![bezier_curve_with_anti_aliasing](image/bezier_curve_with_anti_aliasing.png) |
