@@ -42,7 +42,7 @@ int main() {
     scene.Add(std::make_unique<Light>(Eigen::Vector3f(30.0f, 50.0f, -12.0f), Eigen::Vector3f(0.5f, 0.5f, 0.5f)));    
 
     Renderer r;
-    r.Render(scene);
+    r.render(scene);
 
     return 0;
 }

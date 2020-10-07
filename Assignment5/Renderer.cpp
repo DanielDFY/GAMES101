@@ -1,11 +1,13 @@
+#include "Renderer.hpp"
+
 #include <iostream>
 #include <optional>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#include "Renderer.hpp"
 #include "Scene.hpp"
+#include "Utility.hpp"
 
 // Compute reflection direction
 Eigen::Vector3f reflect(const Eigen::Vector3f& ray_in, const Eigen::Vector3f& normal) {
@@ -110,14 +112,14 @@ std::optional<Hit_payload> trace(
 //
 // If the material of the intersected object is either reflective or reflective and refractive,
 // then we compute the reflection/refraction direction and cast two new rays into the scene
-// by calling the castRay() function recursively. When the surface is transparent, we mix
+// by calling the cast_ray() function recursively. When the surface is transparent, we mix
 // the reflection and refraction color using the result of the fresnel equations (it computes
 // the amount of reflection and refraction depending on the surface normal, incident view direction
 // and surface refractive index).
 //
 // If the surface is diffuse/glossy we use the Phong illumation model to compute the color
 // at the intersection point.
-Eigen::Vector3f cast_ray( const Eigen::Vector3f& ori, const Eigen::Vector3f &dir, const Scene& scene, int depth) {
+Eigen::Vector3f cast_ray( const Eigen::Vector3f& ori, const Eigen::Vector3f& dir, const Scene& scene, int depth) {
     // exceed max depth
     if (depth > scene.max_depth) {
         return {0.0f, 0.0f, 0.0f};
@@ -154,8 +156,8 @@ Eigen::Vector3f cast_ray( const Eigen::Vector3f& ori, const Eigen::Vector3f &dir
                 const auto kr = fresnel(dir, normal, payload->obj_ptr->ior);
                 const auto reflection_dir = reflect(dir, normal).normalized();
                 const auto reflection_ray_ori = (reflection_dir.dot(normal) < 0) ?
-                                                (hit_point + normal * scene.epsilon) :
-                                                (hit_point + normal * -scene.epsilon);
+                                                (hit_point + normal * -scene.epsilon) :
+                                                (hit_point + normal * scene.epsilon);
                 hit_color = kr * cast_ray(reflection_ray_ori, reflection_dir, scene, depth + 1);
                 break;
             } default: {
@@ -202,12 +204,12 @@ Eigen::Vector3f cast_ray( const Eigen::Vector3f& ori, const Eigen::Vector3f &dir
 // The main render function. This where we iterate over all pixels in the image, generate
 // primary rays and cast these rays into the scene. The content of the framebuffer is
 // saved to a file.
-void Renderer::Render(const Scene& scene) {
+void Renderer::render(const Scene& scene) {
     const auto scene_size = scene.width * scene.height;
     std::vector<Eigen::Vector3f> framebuffer(scene_size);
 
     float scale = std::tan(deg_to_rad(scene.fov * 0.5f));
-    float image_aspect_ratio = scene.width / (float)scene.height;
+    float image_aspect_ratio = static_cast<float>(scene.width) / static_cast<float>(scene.height);
 
     // Use this variable as the eye position to start your rays.
     Eigen::Vector3f eye_pos(0.0f, 0.0f, 0.0f);

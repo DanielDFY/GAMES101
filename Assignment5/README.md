@@ -1,6 +1,8 @@
 # Assignment 5: Ray and Triangle Intersection
 
-* Implement **Whitted-Style** ray tracing.
+Implement **Whitted-Style** ray tracing.
+
+
 
 * `render` in `Renderer.cpp` :
 
@@ -22,7 +24,7 @@ cd build
 cmake ..
 
 make
-./Rasterizer	(real-time display, save the result image in to file output.png)
+./RayTracing	(save the result image in to file output.png)
 ```
 
 

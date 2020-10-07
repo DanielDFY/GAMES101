@@ -3,10 +3,10 @@
 bool ray_triangle_intersect(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, 
                             const Eigen::Vector3f& ori, const Eigen::Vector3f& dir,
                             float& t_near, float& u, float& v) {
-    // Tests whether the triangle that's specified by v0, v1 and v2
+    // Test whether the triangle that's specified by v0, v1 and v2
     // intersects with the ray (whose origin is *orig* and direction is *dir*)
 
-    // moller-trumbore algorithm
+    // Moller-Trumbore algorithm
     const auto E1 = v1 - v0;
     const auto E2 = v2 - v0;
     const auto S = ori - v0;

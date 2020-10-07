@@ -25,14 +25,26 @@ Implement both rasterization and ray tracing.
 
   ![Assignment3](Assignment3/image/output_texture_bilinear.png)
 
+  
+
 * Bézier Curve generation with anti-aliasing.
 
   ![Assignment4](Assignment4/image/bezier_curve_with_anti_aliasing.png)
+
+
 
 ### Ray Tracing
 
 * Whitted-Style ray tracing (implement Blinn-Phong lighting model with shadow effects and different materials).
 
   ![Assignment5](Assignment5/image/output.png)
+
+  
+
+* Bounding Volume Hierarchy (implement normal BVH and BVH with SAH partition)
+
+  ![Assignment6](Assignment6/image/output.png)
+
+  
 
 * // todo
