@@ -22,10 +22,6 @@ public:
 template <typename T, typename = typename std::enable_if<std::is_base_of<Object, T>::value>::type>
 std::vector<std::shared_ptr<Object>> transform_to_object_vector(const std::vector<std::shared_ptr<T>>& obj_ptr_list) {
     std::vector<std::shared_ptr<Object>> obj_ptrs(obj_ptr_list.size());
-    std::transform(obj_ptr_list.begin(), obj_ptr_list.end(), obj_ptrs.begin(),
-                   [](const auto& obj_ptr) {
-                       return std::shared_ptr<Object>(new T(*obj_ptr));
-                   }
-    );
+    std::transform(obj_ptr_list.begin(), obj_ptr_list.end(), obj_ptrs.begin(), [](const auto& obj_ptr) { return std::static_pointer_cast<Object>(obj_ptr);});
     return obj_ptrs;
 }
