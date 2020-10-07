@@ -13,7 +13,7 @@ struct Ray {
 
     Ray(const Vector3f& origin, const Vector3f& direction, float time = 0.0f);
 
-    Vector3f at_time(float time) const {return ori + time * dir;}
+    [[nodiscard]] Vector3f at_time(float time) const {return ori + time * dir;}
 };
 
 std::ostream& operator<<(std::ostream& os, const Ray& r);

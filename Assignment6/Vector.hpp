@@ -73,6 +73,3 @@ public:
 inline Vector2f operator *(float k, const Vector2f& v) { return {v.x * k, v.y * k}; }
 
 inline std::ostream& operator <<(std::ostream& os, const Vector2f& v) { return os << v.x << ", " << v.y; }
-
-
-

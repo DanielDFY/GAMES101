@@ -12,11 +12,11 @@ public:
     Scene() = default;
     Scene(int w, int h) : _width(w), _height(h) {}
 
-    int width() const { return _width; }
-    int height() const { return _height; }
-    float fov() const { return _fov; }
-    Vector3f background_color() const { return _background_color; }
-    int max_depth() const { return _max_depth; }
+    [[nodiscard]] int width() const { return _width; }
+    [[nodiscard]] int height() const { return _height; }
+    [[nodiscard]] float fov() const { return _fov; }
+    [[nodiscard]] Vector3f background_color() const { return _background_color; }
+    [[nodiscard]] int max_depth() const { return _max_depth; }
 
     [[nodiscard]] const std::vector<std::shared_ptr<Object>> objects() const { return _obj_ptrs; }
     [[nodiscard]] const std::vector<std::shared_ptr<Light>> lights() const { return _light_ptrs; }

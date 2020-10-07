@@ -8,7 +8,7 @@ class Area_light : public Light {
 public:
     Area_light(const Vector3f& pos, const Vector3f& inten);
 
-    Vector3f random_sample_point() const;
+    [[nodiscard]] Vector3f random_sample_point() const;
 
 public:
     float length;

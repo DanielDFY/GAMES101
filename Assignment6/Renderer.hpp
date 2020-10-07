@@ -24,5 +24,5 @@ private:
     //
     // If the surface is duffuse/glossy we use the Phong illumation model to compute the color
     // at the intersection point.
-    Vector3f cast_ray(const Scene& scene, const Ray& ray, int depth) const;
+    [[nodiscard]] Vector3f cast_ray(const Scene& scene, const Ray& ray, int depth) const;
 };

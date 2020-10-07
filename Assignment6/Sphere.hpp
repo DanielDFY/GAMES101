@@ -16,9 +16,9 @@ public:
 
     Bounding_box bound() const override;
 
-    Vector3f center() { return _center; }
-    float radius() { return _radius; }
-    float radius_sqared() { return _radius_sq; }
+    [[nodiscard]] Vector3f center() { return _center; }
+    [[nodiscard]] float radius() { return _radius; }
+    [[nodiscard]] float radius_sqared() { return _radius_sq; }
     
 
 private:

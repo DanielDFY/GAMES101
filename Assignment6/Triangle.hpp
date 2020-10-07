@@ -14,6 +14,8 @@ public:
     Triangle(const Vector3f& v0, const Vector3f& v1, const Vector3f& v2,
         std::shared_ptr<Material> material_ptr = std::make_shared<Material>());
 
+    Triangle(const Triangle& rhs) = default;
+
     std::optional<Intersection> intersect(const Ray& ray) override;
 
     Bounding_box bound() const override;
@@ -37,9 +39,9 @@ public:
         return _bvh_tree.intersect(ray);
     }
 
-    Bounding_box bound() const override { return _bvh_tree.bound(); }
+    [[nodiscard]] Bounding_box bound() const override { return _bvh_tree.bound(); }
 
-    std::vector<std::shared_ptr<Triangle>> triangles() const { return _triangle_ptrs; }
+    [[nodiscard]] std::vector<std::shared_ptr<Triangle>> triangles() const { return _triangle_ptrs; }
 
 private:
     std::vector<std::shared_ptr<Triangle>> _triangle_ptrs;
