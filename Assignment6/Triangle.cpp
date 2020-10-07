@@ -1,8 +1,8 @@
 #include "Triangle.hpp"
 
-Triangle::Triangle(Vector3f v0, Vector3f v1, Vector3f v2,
+Triangle::Triangle(const Vector3f& v0, const Vector3f& v1, const Vector3f& v2,
                 std::shared_ptr<Material> material_ptr)
- : _v0(std::move(v0)), _v1(std::move(v1)), _v2(std::move(v2)), _mat_ptr(std::move(material_ptr)) {
+ : _v0((v0)), _v1((v1)), _v2(v2), _mat_ptr(std::move(material_ptr)) {
     _e1 = _v1 - _v0;
     _e2 = _v2 - _v0;
     _normal = _e1.cross(_e2).normalized();
