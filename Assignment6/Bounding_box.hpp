@@ -6,6 +6,14 @@
 #include "Ray.hpp"
 #include "Utility.hpp"
 
+inline Vector3f point_with_min_coords(const Vector3f& p1, const Vector3f& p2) {
+    return {std::fmin(p1.x, p2.x), std::fmin(p1.y, p2.y), std::fmin(p1.z, p2.z)};
+}
+
+inline Vector3f point_with_max_coords(const Vector3f& p1, const Vector3f& p2) {
+    return {std::fmax(p1.x, p2.x), std::fmax(p1.y, p2.y), std::fmax(p1.z, p2.z)};
+}
+
 struct Bounding_box {
     enum class Axis { AXIS_X, AXIS_Y, AXIS_Z };
     static int axis_to_dim(Axis axis) {

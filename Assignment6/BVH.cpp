@@ -16,7 +16,7 @@ BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>& obj_ptrs, Split_method 
     time(&stop);
 
     // Print results
-    const float diff = difftime(stop, start);
+    const auto diff = static_cast<float>(difftime(stop, start));
     const auto hrs = static_cast<int>(diff / 3600.0f);
     const auto mins = static_cast<int>(diff / 60.0f) - (hrs * 60);
     const auto secs = static_cast<int>(diff) - (hrs * 3600) - (mins * 60);
@@ -37,26 +37,26 @@ Bounding_box BVH_tree::bound() const {
 
 
 
-std::shared_ptr<BVH_node> BVH_tree::recursive_build(std::vector<std::shared_ptr<Object>>& obj_ptrs, size_t start, size_t end) {
+std::unique_ptr<BVH_node> BVH_tree::recursive_build(std::vector<std::shared_ptr<Object>>& obj_ptrs, size_t start, size_t end) {
     if (start >= end)
         return nullptr;
 
     const auto obj_span = end - start;
 
     // Build current node
-    auto node_ptr = std::make_shared<BVH_node>();
+    auto node_ptr = std::make_unique<BVH_node>();
     if (obj_span == 1) {
         // Create leaf node and return early
         node_ptr->bound = obj_ptrs[start]->bound();
         node_ptr->obj_ptr = obj_ptrs[start];
     } else if (obj_span == 2) {
         // Assign first object to left
-        node_ptr->left_ptr = std::make_shared<BVH_node>();
+        node_ptr->left_ptr = std::make_unique<BVH_node>();
         node_ptr->left_ptr->bound = obj_ptrs[start]->bound();
         node_ptr->left_ptr->obj_ptr = obj_ptrs[start];
 
         // Assign second object to right
-        node_ptr->right_ptr = std::make_shared<BVH_node>();
+        node_ptr->right_ptr = std::make_unique<BVH_node>();
         node_ptr->right_ptr->bound = obj_ptrs[start + 1]->bound();
         node_ptr->right_ptr->obj_ptr = obj_ptrs[start + 1];
 
@@ -188,10 +188,10 @@ std::shared_ptr<BVH_node> BVH_tree::recursive_build(std::vector<std::shared_ptr<
         }
     }
 
-    return node_ptr;
+    return std::move(node_ptr);
 }
 
-std::optional<Intersection> BVH_tree::intersect(const std::shared_ptr<BVH_node>& node_ptr, const Ray& ray) const {
+std::optional<Intersection> BVH_tree::intersect(const std::unique_ptr<BVH_node>& node_ptr, const Ray& ray) const {
     // Traverse the BVH to check intersection
     if (node_ptr != nullptr && node_ptr->bound.intersect(ray)) {
         if (node_ptr->left_ptr == nullptr && node_ptr->right_ptr == nullptr && node_ptr->obj_ptr != nullptr) {
