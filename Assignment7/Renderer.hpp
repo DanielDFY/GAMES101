@@ -7,7 +7,9 @@ public:
     // The main render function. This where we iterate over all pixels in the image,
     // generate primary rays and cast these rays into the scene. The content of the
     // framebuffer is saved to a png image file with tools from stb library.
-    void render(const Scene& scene);
+    //
+    // Change the spp value to change sample amount.
+    void render(const Scene& scene, unsigned int spp);
 
 private:
     // Implementation of the path tracing algorithm

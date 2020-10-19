@@ -6,7 +6,7 @@
 #include "BVH.hpp"
 #include "Intersection.hpp"
 #include "Material.hpp"
-#include "OBJ_Loader.hpp"
+#include "OBJ_Loader.h"
 #include "Object.hpp"
 
 class Triangle : public Object, public std::enable_shared_from_this<Triangle> {

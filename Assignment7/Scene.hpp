@@ -10,10 +10,10 @@
 class Scene {
 public:
     Scene() = default;
-    Scene(int w, int h) : _width(w), _height(h) {}
+    Scene(unsigned int w, unsigned int h) : _width(w), _height(h) {}
 
-    int width() const { return _width; }
-    int height() const { return _height; }
+    unsigned int width() const { return _width; }
+    unsigned int height() const { return _height; }
     float fov() const { return _fov; }
     Vector3f background_color() const { return _background_color; }
     float russian_roulette() const { return _russian_roulette; }
@@ -29,8 +29,8 @@ public:
     [[nodiscard]] std::optional<Sample> sample_light_sources() const;
 
 private:
-    int _width = 1280;
-    int _height = 960;
+    unsigned int  _width = 1280;
+    unsigned int  _height = 960;
     float _fov = 40.0f;
     Vector3f _background_color = { 0.0f, 0.0f, 0.0f };
     float _russian_roulette = 0.8f;

@@ -47,4 +47,8 @@ Implement both rasterization and ray tracing.
 
   
 
+* Path Tracing (implement global illumination with BRDF)
+
+  ![Assignment6](Assignment7/image/output.png)
+
 * // todo

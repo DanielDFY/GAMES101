@@ -3,7 +3,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void Renderer::render(const Scene& scene) {
+void Renderer::render(const Scene& scene, unsigned int spp) {
     const auto scene_size = scene.width() * scene.height();
     std::vector<Vector3f> framebuffer(scene_size);
 
@@ -11,17 +11,25 @@ void Renderer::render(const Scene& scene) {
     float image_aspect_ratio = static_cast<float>(scene.width()) / static_cast<float>(scene.height());
 
     // Use this variable as the eye position to start your rays.
-    Vector3f eye_pos(278, 273, -800);
+    const Vector3f eye_pos(278, 273, -800);
+
+    std::cout << "SPP: " << spp << std::endl;
+
     int pixel_idx = 0;
-    for (uint32_t j = 0; j < scene.height(); ++j) {
-        for (uint32_t i = 0; i < scene.width(); ++i) {
+    for (unsigned int j = 0; j < scene.height(); ++j) {
+        for (unsigned int i = 0; i < scene.width(); ++i) {
             // generate primary ray direction
             const auto x = (2 * (static_cast<float>(i) + 0.5f) / static_cast<float>(scene.width()) - 1.0f) * scale * image_aspect_ratio;
             const auto y = (1.0f - 2 * (static_cast<float>(j) + 0.5f) / static_cast<float>(scene.height())) * scale;
 
             const auto dir = Vector3f(-x, y, 1.0f).normalized();
             const Ray ray(eye_pos, dir);
-            framebuffer[pixel_idx++] = cast_ray(scene, ray);
+
+            Vector3f color(0.0f);
+            for (int k = 0; k < spp; k++){
+                color += cast_ray(scene, ray);
+            }
+            framebuffer[pixel_idx++] = color / static_cast<float>(spp);
         }
         update_progress(static_cast<float>(j) / static_cast<float>(scene.height()));
     }
@@ -31,8 +39,8 @@ void Renderer::render(const Scene& scene) {
 
     // save frame buffer to file with tools from stb library
     const std::string output_file_name("output.png");
-    constexpr int channel_num = 3;
-    const int image_size = scene_size * channel_num;
+    constexpr unsigned int channel_num = 3;
+    const unsigned int image_size = scene_size * channel_num;
 	const size_t stride_in_bytes = scene.width() * channel_num * sizeof(unsigned char);
     const std::unique_ptr<unsigned char[]> pixel_data_ptr(new unsigned char[image_size]);
 
@@ -43,7 +51,7 @@ void Renderer::render(const Scene& scene) {
 		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, framebuffer[i].z), 0.6f));
     }
 
-    stbi_write_png(output_file_name.c_str(), scene.width(), scene.height(), channel_num, pixel_data_ptr.get(), stride_in_bytes); 
+    stbi_write_png(output_file_name.c_str(), static_cast<int>(scene.width()), static_cast<int>(scene.height()), channel_num, pixel_data_ptr.get(), stride_in_bytes);
 }
 
 Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {

@@ -31,6 +31,6 @@ make
 
 ## Image
 
-Cornellbox scene with only basic diffuse material and global illumination (1 spp).
+Cornellbox scene with only basic diffuse material and global illumination (16 spp).
 
 ![output](image/output.png)
