@@ -41,7 +41,7 @@ Implement both rasterization and ray tracing.
 
   
 
-* Bounding Volume Hierarchy (implement normal BVH and BVH with SAH partition)
+* Bounding Volume Hierarchy (implement naive BVH and BVH with SAH partition)
 
   ![Assignment6](Assignment6/image/output.png)
 
