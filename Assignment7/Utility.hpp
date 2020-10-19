@@ -12,9 +12,6 @@ inline float degree_to_rad(float degree) { return degree * PI / 180.0f; }
 constexpr auto FLOAT_INFINITY = std::numeric_limits<float>::max();
 constexpr auto FLOAT_LOWEST = std::numeric_limits<float>::lowest();
 
-constexpr auto DOUBLE_INFINITY = std::numeric_limits<double>::max();
-constexpr auto DOUBLE_LOWEST = std::numeric_limits<double>::lowest();
-
 inline float clamp(float lo, float hi, float v) { return std::max(lo, std::min(hi, v)); }
 
 bool solve_quadratic(float a, float b, float c, float& x0, float& x1);
