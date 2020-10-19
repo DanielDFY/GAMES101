@@ -6,7 +6,7 @@ Implement **Path Tracing** with **Bidirectional Reflectance Distribution Functio
 
 // todo
 
-* Implement higher spp with multi-thread acceleration.
+* Implement multi-threading acceleration.
 
 * Implement microfacet model for **Bidirectional Scattering Distribution Function (BSDF)** and **multiple importance sampling**.
 
