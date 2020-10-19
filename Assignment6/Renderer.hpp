@@ -10,7 +10,7 @@ public:
     void render(const Scene& scene);
 
 private:
-    // Implementation of the Whitted-syle light transport algorithm
+    // Implementation of the Whitted-syle ray tracing algorithm
     //
     // This function is the function that compute the color at the intersection point
     // of a ray defined by a position and a direction. Note that thus function is recursive.
