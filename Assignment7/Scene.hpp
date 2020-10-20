@@ -11,9 +11,12 @@ class Scene {
 public:
     Scene() = default;
     Scene(unsigned int w, unsigned int h) : _width(w), _height(h) {}
+    Scene(unsigned int w, unsigned int h, const Vector3f& eye_pos, float fov)
+     : _width(w), _height(h), _eye_pos(eye_pos), _fov(fov) {}
 
     unsigned int width() const { return _width; }
     unsigned int height() const { return _height; }
+    Vector3f eye_pos() const { return _eye_pos; }
     float fov() const { return _fov; }
     Vector3f background_color() const { return _background_color; }
     float russian_roulette() const { return _russian_roulette; }
@@ -31,7 +34,8 @@ public:
 private:
     unsigned int  _width = 1280;
     unsigned int  _height = 960;
-    float _fov = 40.0f;
+    Vector3f _eye_pos = {0.0f, 0.0f, 0.0f};
+    float _fov = 90.0f;
     Vector3f _background_color = { 0.0f, 0.0f, 0.0f };
     float _russian_roulette = 0.8f;
 

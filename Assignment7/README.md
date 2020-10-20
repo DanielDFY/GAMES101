@@ -2,11 +2,11 @@
 
 Implement **Path Tracing** with **Bidirectional Reflectance Distribution Function (BRDF)**.
 
+Implement multiple sample point and multi-thread acceleration.
+
 
 
 // todo
-
-* Implement multi-threading acceleration.
 
 * Implement microfacet model for **Bidirectional Scattering Distribution Function (BSDF)** and **multiple importance sampling**.
 

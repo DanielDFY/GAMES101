@@ -41,7 +41,10 @@ public:
     [[nodiscard]] std::optional<Sample> sample() const;
 
 private:
-    [[nodiscard]] std::unique_ptr<BVH_node> recursive_build(std::vector<std::shared_ptr<Object>>& obj_ptr_list, size_t start, size_t end);
+    [[nodiscard]] std::unique_ptr<BVH_node> recursive_build(std::vector<std::shared_ptr<Object>>& obj_ptrs, size_t start, size_t end);
+    [[nodiscard]] std::unique_ptr<BVH_node> naive_partition(std::vector<std::shared_ptr<Object>>& obj_ptrs, size_t start, size_t end, size_t obj_span);
+    [[nodiscard]] std::unique_ptr<BVH_node> sah_partition(std::vector<std::shared_ptr<Object>>& obj_ptrs, size_t start, size_t end);
+
     [[nodiscard]] std::optional<Intersection> intersect(const std::unique_ptr<BVH_node>& node_ptr, const Ray& ray) const;
     [[nodiscard]] std::optional<Sample> sample(const std::unique_ptr<BVH_node>& node_ptr, float threshold) const;
 

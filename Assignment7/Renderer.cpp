@@ -1,37 +1,24 @@
 #include "Renderer.hpp"
 
+#include <future>
+#include <functional>
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void Renderer::render(const Scene& scene, unsigned int spp) {
+void Renderer::render(const Scene& scene, unsigned int spp, unsigned int total_thread_count) const {
     const auto scene_size = scene.width() * scene.height();
-    std::vector<Vector3f> framebuffer(scene_size);
-
-    float scale = std::tan(degree_to_rad(scene.fov() * 0.5f));
-    float image_aspect_ratio = static_cast<float>(scene.width()) / static_cast<float>(scene.height());
-
-    // Use this variable as the eye position to start your rays.
-    const Vector3f eye_pos(278, 273, -800);
+    std::vector<Vector3f> frame_buffer(scene_size);
 
     std::cout << "SPP: " << spp << std::endl;
 
-    int pixel_idx = 0;
-    for (unsigned int j = 0; j < scene.height(); ++j) {
-        for (unsigned int i = 0; i < scene.width(); ++i) {
-            // generate primary ray direction
-            const auto x = (2 * (static_cast<float>(i) + 0.5f) / static_cast<float>(scene.width()) - 1.0f) * scale * image_aspect_ratio;
-            const auto y = (1.0f - 2 * (static_cast<float>(j) + 0.5f) / static_cast<float>(scene.height())) * scale;
+    std::vector<std::future<void>> thread_handles(total_thread_count);
+    for (unsigned int thread_id = 0; thread_id < total_thread_count; ++thread_id) {
+        thread_handles[thread_id] = std::async(std::launch::async, &Renderer::render_thread, this, total_thread_count, thread_id, std::cref(scene), spp, std::ref(frame_buffer));
+    }
 
-            const auto dir = Vector3f(-x, y, 1.0f).normalized();
-            const Ray ray(eye_pos, dir);
-
-            Vector3f color(0.0f);
-            for (int k = 0; k < spp; k++){
-                color += cast_ray(scene, ray);
-            }
-            framebuffer[pixel_idx++] = color / static_cast<float>(spp);
-        }
-        update_progress(static_cast<float>(j) / static_cast<float>(scene.height()));
+    for (const auto& handle : thread_handles) {
+        handle.wait();
     }
 
     update_progress(1.0f);
@@ -46,9 +33,9 @@ void Renderer::render(const Scene& scene, unsigned int spp) {
 
     for (auto i = 0, idx = 0; i < scene_size; ++i) {
         // pow(color, exponent) for gamma correction
-        pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, framebuffer[i].x), 0.6f));
-		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, framebuffer[i].y), 0.6f));
-		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, framebuffer[i].z), 0.6f));
+        pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].x), 0.6f));
+		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].y), 0.6f));
+		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].z), 0.6f));
     }
 
     stbi_write_png(output_file_name.c_str(), static_cast<int>(scene.width()), static_cast<int>(scene.height()), channel_num, pixel_data_ptr.get(), stride_in_bytes);
@@ -105,4 +92,34 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
     }
 
     return i_direct + i_indirect;
+}
+
+void Renderer::render_thread(unsigned int total_thread_count, unsigned int thread_id, const Scene& scene, unsigned int spp, std::vector<Vector3f>& frame_buffer) const {
+    const auto scale = std::tan(degree_to_rad(scene.fov() * 0.5f));
+    const auto image_aspect_ratio = static_cast<float>(scene.width()) / static_cast<float>(scene.height());
+
+    const auto pixel_count = scene.width() * scene.height();
+
+    // Use the amount of threads as interval to avoid mutex locking.
+    for (auto pixel_idx = thread_id; pixel_idx < pixel_count; pixel_idx += total_thread_count) {
+        const auto pixel_row = pixel_idx / scene.width();
+        const auto pixel_col = pixel_idx % scene.width();
+
+        // generate primary ray direction
+        const auto x = (2 * (static_cast<float>(pixel_col) + 0.5f) / static_cast<float>(scene.width()) - 1.0f) * scale * image_aspect_ratio;
+        const auto y = (1.0f - 2 * (static_cast<float>(pixel_row) + 0.5f) / static_cast<float>(scene.height())) * scale;
+
+        const auto dir = Vector3f(-x, y, 1.0f).normalized();
+        const Ray ray(scene.eye_pos(), dir);
+
+        Vector3f color(0.0f);
+        for (int k = 0; k < spp; k++){
+            color += cast_ray(scene, ray);
+        }
+        frame_buffer[pixel_idx] = color / static_cast<float>(spp);
+
+        if (thread_id == 0) {
+            update_progress(static_cast<float>(pixel_row) / static_cast<float>(scene.height()));
+        }
+    }
 }

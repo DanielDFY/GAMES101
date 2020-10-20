@@ -8,8 +8,9 @@ public:
     // generate primary rays and cast these rays into the scene. The content of the
     // framebuffer is saved to a png image file with tools from stb library.
     //
-    // Change the spp value to change sample amount.
-    void render(const Scene& scene, unsigned int spp);
+    // *spp* is for sampling amount per pixel.
+    // *total_thread_count* indicates how many threads are used to do multi-thread rendering.
+    void render(const Scene& scene, unsigned int spp, unsigned int total_thread_count) const;
 
 private:
     // Implementation of the path tracing algorithm
@@ -28,4 +29,7 @@ private:
     //     2. From the indirect illumination of the other objects that reflect
     //        the emission of the light sources.
     [[nodiscard]] Vector3f cast_ray(const Scene& scene, const Ray& ray) const;
+
+    // Rendering task function for one thread
+    void render_thread(unsigned int total_thread_count, unsigned int thread_id, const Scene& scene, unsigned int spp, std::vector<Vector3f>& frame_buffer) const;
 };

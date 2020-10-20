@@ -51,4 +51,6 @@ Implement both rasterization and ray tracing.
 
   ![Assignment6](Assignment7/image/output.png)
 
+
+
 * // todo

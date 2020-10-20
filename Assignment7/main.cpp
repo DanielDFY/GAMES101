@@ -10,8 +10,9 @@
 // maximum recursion depth, field-of-view, etc.). We then call the render
 // function().
 int main(int argc, char** argv) {
-    Scene scene(1024, 1024);
+    Scene scene(1024, 1024, {278.0f, 273.0f, -800.0f}, 40.0f);
     constexpr unsigned int spp = 16;
+    constexpr unsigned int total_thread_count = 16;
 
     const auto red_mat_ptr = std::make_shared<Material>(Material_type::DIFFUSE, Vector3f(0.0f), 0.0f, Vector3f(0.63f, 0.065f, 0.05f), 0.0f, 0.0f);
     const auto green_mat_ptr = std::make_shared<Material>(Material_type::DIFFUSE, Vector3f(0.0f), 0.0f, Vector3f(0.14f, 0.45f, 0.091f), 0.0f, 0.0f);
@@ -55,7 +56,7 @@ int main(int argc, char** argv) {
 
     std::cout << " - Rendering Scene..." << std::endl;
     const auto start = std::chrono::system_clock::now();
-    r.render(scene, spp);
+    r.render(scene, spp, total_thread_count);
     const auto stop = std::chrono::system_clock::now();
 
     std::cout << "Render complete: \n";
