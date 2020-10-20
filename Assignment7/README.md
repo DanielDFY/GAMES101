@@ -2,7 +2,7 @@
 
 Implement **Path Tracing** with **Bidirectional Reflectance Distribution Function (BRDF)**.
 
-Implement multiple sample point and multi-thread acceleration.
+Implement multiple sample points and multi-thread acceleration.
 
 
 
