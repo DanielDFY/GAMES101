@@ -50,7 +50,8 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
 
     if (mat_ptr->emitting()) {
         // hit light source
-        return mat_ptr->emission(intersection->uv.x, intersection->uv.y);
+        // return mat_ptr->emission(intersection->uv.x, intersection->uv.y);
+        return {1.0f};
     }
 
     const auto pos = intersection->pos;         // position of shading point
@@ -70,7 +71,8 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
 
         // check block between shading point and light sample point
         const auto check_intersection = scene.intersect({pos, light_sample_dir});
-        if (check_intersection && (check_intersection->pos - light_sample_pos).magnitude_squared() < EPSILON) {
+        // float has only 7 valid digits, so use EPSILON here will increase noise (use larger threshold instead)
+        if (check_intersection && (check_intersection->pos - light_sample_pos).magnitude_squared() < 0.01f) {
             const auto emission = light_sample->intersection.mat_ptr->emission(light_sample->intersection.uv.x, light_sample->intersection.uv.y);
             i_direct = emission * mat_ptr->contribution(observation_dir, light_sample_dir, normal)
                        * light_sample_dir.dot(normal) * (-light_sample_dir).dot(light_sample_normal)

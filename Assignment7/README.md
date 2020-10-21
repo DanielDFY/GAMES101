@@ -31,6 +31,6 @@ make
 
 ## Image
 
-Cornellbox scene with only basic diffuse material and global illumination (16 spp).
-
-![output](image/output.png)
+| Scene                                                        | BRDF 16 spp                       | BRDF 64 spp                       |
+| ------------------------------------------------------------ | --------------------------------- | --------------------------------- |
+| Cornellbox (basic diffuse material with global illumination) | ![output](image/output_16spp.png) | ![output](image/output_64spp.png) |
