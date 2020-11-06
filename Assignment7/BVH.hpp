@@ -33,6 +33,7 @@ public:
             Split_method split_method = Split_method::NAIVE);
     BVH_tree(std::vector<std::shared_ptr<Object>>&& obj_ptrs,
             Split_method split_method = Split_method::NAIVE);
+    BVH_tree(BVH_tree&& rhs) noexcept : _root_ptr(std::move(rhs._root_ptr)), _split_method(rhs._split_method) {};
 
     [[nodiscard]] std::optional<Intersection> intersect(const Ray &ray) const;
     Bounding_box bound() const { return _root_ptr == nullptr ? bound() : _root_ptr->bound; }

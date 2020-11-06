@@ -16,8 +16,8 @@ bool Bounding_box::intersect(const Ray& ray) const {
     const auto t_pmin = (p_min - ray.ori) * ray.inv_dir;
 
     // t_min & t_max along x/y/z-axis
-    const auto t_min = point_with_min_coords(t_pmin, t_pmax);
-    const auto t_max = point_with_max_coords(t_pmin, t_pmax);
+    const auto t_min = Vector3f::min_elems(t_pmin, t_pmax);
+    const auto t_max = Vector3f::max_elems(t_pmin, t_pmax);
 
     const auto t_enter = std::max(std::max(t_min.x, t_min.y), t_min.z);
     const auto t_exit = std::min(std::min(t_max.x, t_max.y), t_max.z);

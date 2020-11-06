@@ -86,7 +86,7 @@ Vector3f Material::sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f
 float Material::pdf(const Vector3f& ray_in_dir, const Vector3f& ray_out_dir, const Vector3f& normal) {
     switch(_type){
         case Material_type::DIFFUSE: {
-            // uniform sample probability 1 / (2 * PI)
+            // uniformly sampling from hemisphere results in probability 1 / (2 * PI)
             return ray_out_dir.dot(normal) > 0.0f ? INV_2PI : 0.0f;
         } default: {
             throw std::runtime_error("no implemented pdf for current material");

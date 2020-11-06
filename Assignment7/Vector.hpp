@@ -10,6 +10,16 @@ public:
     Vector3f(float k) : x(k), y(k), z(k) {}
     Vector3f(float xx, float yy, float zz) : x(xx), y(yy), z(zz) {}
 
+public:
+    static Vector3f min_elems(const Vector3f& v1, const Vector3f& v2) {
+        return { std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z) };
+    }
+
+    static Vector3f max_elems(const Vector3f& v1, const Vector3f& v2) {
+        return { std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z) };
+    }
+	
+public:
     Vector3f operator -() const { return {-x, -y, -z}; }
 
     Vector3f operator +(const Vector3f& v) const { return {x + v.x, y + v.y, z + v.z}; }

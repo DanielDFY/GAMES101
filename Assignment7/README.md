@@ -1,14 +1,16 @@
 # Assignment 7: Path Tracing
 
-Implement **Path Tracing** with **Bidirectional Reflectance Distribution Function (BRDF)**.
+Implement **Path Tracing** with **Cook–Torrance Bidirectional Reflectance Distribution Function (BRDF)**.
 
-Implement multiple sample points and multi-thread acceleration.
+Implement **multiple importance sampling** for *direct* light illumination.
+
+Implement **anti-aliasing** and **multi-threading acceleration**.
 
 
 
 // todo
 
-* Implement microfacet model for **Bidirectional Scattering Distribution Function (BSDF)** and **multiple importance sampling**.
+* Implement **GGX microfacet model** for **Bidirectional Scattering Distribution Function (BSDF)** with **importance sampling**.
 
 * Implement **Bi-directional Path Tracing (BDPT)**
 
@@ -31,6 +33,6 @@ make
 
 ## Image
 
-| Scene                                                        | BRDF 16 spp                       | BRDF 64 spp                       |
-| ------------------------------------------------------------ | --------------------------------- | --------------------------------- |
-| Cornellbox (basic diffuse material with global illumination) | ![output](image/output_16spp.png) | ![output](image/output_64spp.png) |
+| Scene                         | PT 16 spp                         | PT 64 spp                         |
+| ----------------------------- | --------------------------------- | --------------------------------- |
+| Cornellbox (diffuse material) | ![output](image/output_16spp.png) | ![output](image/output_64spp.png) |

@@ -28,14 +28,14 @@ void Renderer::render(const Scene& scene, unsigned int spp, unsigned int total_t
     const std::string output_file_name("output.png");
     constexpr unsigned int channel_num = 3;
     const unsigned int image_size = scene_size * channel_num;
-	const size_t stride_in_bytes = scene.width() * channel_num * sizeof(unsigned char);
+	const auto stride_in_bytes = static_cast<size_t>(scene.width() * channel_num) * sizeof(unsigned char);
     const std::unique_ptr<unsigned char[]> pixel_data_ptr(new unsigned char[image_size]);
 
     for (auto i = 0, idx = 0; i < scene_size; ++i) {
         // pow(color, exponent) for gamma correction
-        pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].x), 0.6f));
-		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].y), 0.6f));
-		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0, 1, frame_buffer[i].z), 0.6f));
+        pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0.0f, 1.0f, frame_buffer[i].x), 0.6f));
+		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0.0f, 1.0f, frame_buffer[i].y), 0.6f));
+		pixel_data_ptr[idx++] = static_cast<unsigned char>(255.0f * std::pow(clamp(0.0f, 1.0f, frame_buffer[i].z), 0.6f));
     }
 
     stbi_write_png(output_file_name.c_str(), static_cast<int>(scene.width()), static_cast<int>(scene.height()), channel_num, pixel_data_ptr.get(), stride_in_bytes);
@@ -46,17 +46,10 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
     if (!intersection)
         return scene.background_color();
 
-    const auto mat_ptr = intersection->mat_ptr;
-
-    if (mat_ptr->emitting()) {
-        // hit light source
-        // return mat_ptr->emission(intersection->uv.x, intersection->uv.y);
-        return {1.0f};
-    }
-
     const auto pos = intersection->pos;         // position of shading point
     const auto normal = intersection->normal;   // normal at shading point
     const auto observation_dir = -ray.dir;      // observation direction
+    const auto mat_ptr = intersection->mat_ptr; // material at shading point
 
     // Direct illumination
     Vector3f i_direct = {0.0f, 0.0f, 0.0f};
@@ -74,9 +67,19 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
         // float has only 7 valid digits, so use EPSILON here will increase noise (use larger threshold instead)
         if (check_intersection && (check_intersection->pos - light_sample_pos).magnitude_squared() < 0.01f) {
             const auto emission = light_sample->intersection.mat_ptr->emission(light_sample->intersection.uv.x, light_sample->intersection.uv.y);
-            i_direct = emission * mat_ptr->contribution(observation_dir, light_sample_dir, normal)
-                       * light_sample_dir.dot(normal) * (-light_sample_dir).dot(light_sample_normal)
-                       / (intersection_to_light_sample.magnitude_squared() * light_sample->pdf);
+
+            // light source importance sampling
+            const auto cos_theta = (-light_sample_dir).dot(light_sample_normal);
+            const auto pdf_light_sample = (cos_theta == 0.0f) ? 0.0f : (intersection_to_light_sample.magnitude_squared() * light_sample->pdf) / abs(cos_theta);
+
+            // brdf importance sampling
+            const auto pdf_brdf = mat_ptr->pdf(observation_dir, light_sample_dir, normal);
+
+            // balanced heuristic multiple importance sampling
+            const auto pdf_sum = pdf_light_sample + pdf_brdf;
+            if (pdf_sum > 0.0f) {
+                i_direct += emission * mat_ptr->contribution(observation_dir, light_sample_dir, normal) * light_sample_dir.dot(normal) / (EPSILON + pdf_sum);
+            }
         }
     }
 
@@ -86,14 +89,19 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
     // Use Russian Roulette to limit the recursion depth
     if (get_random_float() < scene.russian_roulette()) {
         // sample a direction for indirect illumination
+
         const auto indirect_light_source_dir = mat_ptr->sample_ray_out_dir(observation_dir, normal);
+
+        // brdf importance sampling
+        const auto pdf_brdf = mat_ptr->pdf(observation_dir, indirect_light_source_dir, normal);
+
         i_indirect = cast_ray(scene, {pos, indirect_light_source_dir})
                      * mat_ptr->contribution(observation_dir, indirect_light_source_dir, normal)
                      * indirect_light_source_dir.dot(normal)
-                     / (mat_ptr->pdf(observation_dir, indirect_light_source_dir, normal) * scene.russian_roulette());
+                     / (pdf_brdf * scene.russian_roulette());
     }
 
-    return i_direct + i_indirect;
+    return  i_direct + i_indirect;
 }
 
 void Renderer::render_thread(unsigned int total_thread_count, unsigned int thread_id, const Scene& scene, unsigned int spp, std::vector<Vector3f>& frame_buffer) const {
@@ -107,15 +115,21 @@ void Renderer::render_thread(unsigned int total_thread_count, unsigned int threa
         const auto pixel_row = pixel_idx / scene.width();
         const auto pixel_col = pixel_idx % scene.width();
 
-        // generate primary ray direction
-        const auto x = (2 * (static_cast<float>(pixel_col) + 0.5f) / static_cast<float>(scene.width()) - 1.0f) * scale * image_aspect_ratio;
-        const auto y = (1.0f - 2 * (static_cast<float>(pixel_row) + 0.5f) / static_cast<float>(scene.height())) * scale;
-
-        const auto dir = Vector3f(-x, y, 1.0f).normalized();
-        const Ray ray(scene.eye_pos(), dir);
-
         Vector3f color(0.0f);
-        for (int k = 0; k < spp; k++){
+        for (unsigned int k = 0; k < spp; k++){
+            // generate primary ray direction for each sample
+            const auto x = (2 * (static_cast<float>(pixel_col) + get_random_float()) / static_cast<float>(scene.width()) - 1.0f) * scale * image_aspect_ratio;
+            const auto y = (1.0f - 2 * (static_cast<float>(pixel_row) + get_random_float()) / static_cast<float>(scene.height())) * scale;
+
+            const auto dir = Vector3f(-x, y, 1.0f).normalized();
+            const Ray ray(scene.eye_pos(), dir);
+
+            const auto intersection = scene.intersect(ray);
+            if (intersection && intersection->mat_ptr->emitting()) {
+            	// hit light source directly
+	            color += intersection->mat_ptr->emission(intersection->uv.x, intersection->uv.y);
+            }
+        	// do path tracing
             color += cast_ray(scene, ray);
         }
         frame_buffer[pixel_idx] = color / static_cast<float>(spp);

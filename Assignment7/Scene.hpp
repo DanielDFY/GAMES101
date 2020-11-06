@@ -41,5 +41,5 @@ private:
 
     std::vector<std::shared_ptr<Object>> _obj_ptrs;
 
-    BVH_tree _bvh_tree;
+    std::unique_ptr<BVH_tree> _bvh_tree_ptr;
 };

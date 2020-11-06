@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "Utility.hpp"
 #include "Bounding_box.hpp"
 #include "Ray.hpp"
 #include "Intersection.hpp"
@@ -18,12 +17,14 @@ class Object {
 public:
     Object() = default;
     virtual ~Object() = default;
-
-    [[nodiscard]] virtual std::optional<Intersection> intersect(const Ray& ray) = 0;
-    virtual Bounding_box bound() const = 0;
+	
     virtual float area() const = 0;
-    [[nodiscard]] virtual std::optional<Sample> sample() = 0;
+    virtual Bounding_box bound() const = 0;
     virtual bool emitting() const = 0;
+	
+    [[nodiscard]] virtual std::optional<Intersection> intersect(const Ray& ray) = 0;
+    [[nodiscard]] virtual std::optional<Sample> sample() = 0;
+    
 };
 
 // Deal with polymorphism
