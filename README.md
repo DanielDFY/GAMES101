@@ -35,7 +35,7 @@ Implement both rasterization and ray tracing.
 
 ### Ray Tracing
 
-* Whitted-Style ray tracing (implement Blinn-Phong lighting model with shadow effects and different materials).
+* Whitted-Style ray tracing (Blinn-Phong lighting model with shadow effects and different materials).
 
   ![Assignment5](Assignment5/image/output.png)
 
@@ -47,7 +47,7 @@ Implement both rasterization and ray tracing.
 
   
 
-* Path Tracing (implement global illumination with BRDF)
+* Path Tracing (Cook–Torrance BRDF, multiple importance sampling, anti-aliasing)
 
   ![Assignment7](Assignment7/image/output_64spp.png)
 
