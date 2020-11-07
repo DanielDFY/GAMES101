@@ -26,9 +26,9 @@ To enable SAH for BVH construction, uncomment the definition of macro `SVH` in `
 
 ## Run
 
-Modify the path in `CMakeLists.txt`
+Modify the path in `CMakeLists.txt`, then
 
-```
+```shell
 mkdir build
 cd build
 cmake ..

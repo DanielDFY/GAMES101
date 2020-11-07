@@ -16,9 +16,9 @@ Implement **Whitted-Style** ray tracing.
 
 ## Run
 
-Modify the path in `CMakeLists.txt`
+Modify the path in `CMakeLists.txt`, then
 
-```
+```shell
 mkdir build
 cd build
 cmake ..

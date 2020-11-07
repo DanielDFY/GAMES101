@@ -18,9 +18,9 @@ Implement **anti-aliasing** and **multi-threading acceleration**.
 
 ## Run
 
-Modify the path in `CMakeLists.txt`
+Modify the path in `CMakeLists.txt`, then
 
-```
+```shell
 mkdir build
 cd build
 cmake ..

@@ -32,9 +32,9 @@ The color calculation is based on the relative ratio value of distance from the 
 
 ## Run
 
-Modify the path in `CMakeLists.txt`
+Modify the path in `CMakeLists.txt`, then
 
-```
+```shell
 mkdir build
 cd build
 cmake ..
