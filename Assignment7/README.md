@@ -2,7 +2,7 @@
 
 Implement **Path Tracing** with **Cook–Torrance Bidirectional Reflectance Distribution Function (BRDF)**.
 
-Implement **multiple importance sampling** for *direct* light illumination.
+Implement [**multiple importance sampling**](https://graphics.stanford.edu/courses/cs348b-03/papers/veach-chapter9.pdf) for *direct* light illumination.
 
 Implement **anti-aliasing** and **multi-threading acceleration**.
 

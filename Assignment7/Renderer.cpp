@@ -95,10 +95,13 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray) const {
         // brdf importance sampling
         const auto pdf_brdf = mat_ptr->pdf(observation_dir, indirect_light_source_dir, normal);
 
-        i_indirect = cast_ray(scene, {pos, indirect_light_source_dir})
-                     * mat_ptr->contribution(observation_dir, indirect_light_source_dir, normal)
-                     * indirect_light_source_dir.dot(normal)
-                     / (pdf_brdf * scene.russian_roulette());
+    	if (pdf_brdf > 0.0f) {
+            i_indirect = cast_ray(scene, { pos, indirect_light_source_dir })
+                * mat_ptr->contribution(observation_dir, indirect_light_source_dir, normal)
+                * indirect_light_source_dir.dot(normal)
+                / ((pdf_brdf + EPSILON) * scene.russian_roulette());
+    	}
+        
     }
 
     return  i_direct + i_indirect;
