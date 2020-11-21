@@ -1,6 +1,6 @@
 #include "Ray.hpp"
 
-#include "Utility.hpp"
+#include "Math.hpp"
 
 Ray::Ray(const Vector3f& origin, const Vector3f& direction, float time)
     : ori(origin), dir(direction), t(time), t_min(0.0f), t_max(FLOAT_INFINITY) {

@@ -28,7 +28,7 @@ private:
     //        the emission of the light sources.
     //
     // Russian Roulette method is applied to limit the depth of recursion.
-    [[nodiscard]] Vector3f cast_ray(const Scene& scene, const Ray& ray) const;
+    [[nodiscard]] Vector3f cast_ray(const Scene& scene, const Ray& ray, Culling culling) const;
 
     // Rendering task function for one thread
     void render_thread(unsigned int total_thread_count, unsigned int thread_id, const Scene& scene, unsigned int spp, std::vector<Vector3f>& frame_buffer) const;

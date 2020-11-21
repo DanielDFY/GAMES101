@@ -1,49 +1,89 @@
 #pragma once
 
-#include "Vector.hpp"
-#include "Utility.hpp"
+#include "Math.hpp"
 
-enum class Material_type { DIFFUSE, REFLECTION_AND_REFRACTION, REFLECTION };
+// Compute reflection direction
+Vector3f reflect(const Vector3f& ray_in_dir, const Vector3f& normal);
+
+// Compute refraction direction using Snell's law
+Vector3f refract(const Vector3f& ray_in_dir, const Vector3f& normal, float ior);
+
+// Compute Fresnel equation
+static float fresnel(const Vector3f& observation_dir, const Vector3f& normal, float ior);
 
 class Material {
 public:
-    Material() : _type(Material_type::DIFFUSE), _emission(0.0f, 0.0f, 0.0f),
-                 _ior(0.0f), _kd(0.0f), _ks(0.0f), _specular_exponent(0.0f) {}
-                
-    Material(Material_type t, const Vector3f& e, float ior_value, Vector3f kd_value, Vector3f ks_value, float specular_exp)
-             : _type(t), _emission(e), _ior(ior_value), _kd(kd_value), _ks(ks_value), _specular_exponent(specular_exp) {}
-
-    inline Material_type type() { return _type; }
-
-    inline bool emitting() { return _emission.magnitude() > EPSILON; }
-
-    inline Vector3f emission(float u, float v) { return _emission; }
+    virtual ~Material() = default;
+	
+public:
+    virtual bool emitting() const = 0;
+    virtual Vector3f emission(float u, float v) const = 0;
 
     // Given the direction of an incident ray and a normal vector,
     // calculate a random ray-out direction with some kind of sample distribution.
-    [[nodiscard]] Vector3f sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f& normal);
+    [[nodiscard]] virtual Vector3f sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f& normal) const = 0;
 
-    // Given the directions of the ray in and ray out and a normal vector,
+    // Given the directions of the ray source and ray out and a normal vector,
     // calculate its value of PDF (probability distribution function).
-    float pdf(const Vector3f& ray_in_dir, const Vector3f& ray_out_dir, const Vector3f& normal);
+    [[nodiscard]] virtual float pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const = 0;
 
-    // Given the directions of the ray in and ray out and a normal vector,
-    // calculate its contribution from BRDF (bidirectional reflectance distribution function).
-    Vector3f contribution(const Vector3f& ray_in_dir, const Vector3f& ray_out_dir, const Vector3f& normal);
-
-public:
-    Material_type _type;
-    Vector3f _emission;
-    float _ior;
-    Vector3f _kd, _ks;
-    float _specular_exponent;
+    // Given the directions of the ray source and ray out and a normal vector,
+    // calculate its contribution from BSDF (bidirectional scattering distribution function).
+    [[nodiscard]] virtual Vector3f contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const = 0;
 };
 
-// Compute reflection direction
-Vector3f reflect(const Vector3f& ray_dir, const Vector3f& normal);
+class GGX {
+public:
+    // Generalized-Trowbridge-Reitz Normal Distribution Function (GTR-NDF) when γ = 2
+    static float distribution(float normal_dot_half_vec, float roughness_sq);
+    // Fresnel-Schlick approximation
+    static Vector3f fresnel_schlick(float half_vec_dot_observer_dir, const Vector3f& f0);
+    // Smith-Joint Approximation from Respawn Entertainment
+    static float geometry(float normal_dot_observer_dir, float normal_dot_light_source_dir, float roughness_sq);
 
-// Compute refraction direction using Snell's law
-Vector3f refract(const Vector3f& ray_dir, const Vector3f& normal, float ior);
+	// calculate a random ray-out direction under GTR-NDF
+    static Vector3f sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f& normal, float roughness_sq);
+    // probability distribution function for importance sampling on GTR-NDF
+    static float pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal, float roughness_sq);
+};
 
-// Compute Fresnel equation
-float fresnel(const Vector3f& ray_dir, const Vector3f& normal, float ior);
+// Diffuse
+class Diffuse : public Material {
+public:
+    Diffuse(const Vector3f& albedo, const Vector3f& emission = {0.0f, 0.0f, 0.0f}) : _albedo(albedo), _emission(emission) {}
+
+public:
+    bool emitting() const override;
+	Vector3f emission(float u, float v) const override;
+	
+    [[nodiscard]] Vector3f sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f& normal) const override;
+    [[nodiscard]] float pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const override;
+    [[nodiscard]] Vector3f contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const override;
+	
+private:
+    Vector3f _albedo;
+    Vector3f _emission;
+};
+
+// Metal-roughness workflow
+class MetalRough : public Material {
+public:
+	MetalRough(const Vector3f& albedo, float roughness, float metallic,
+        const Vector3f& emission = { 0.0f, 0.0f, 0.0f })
+        : _albedo(albedo), _roughness(roughness), _roughness_sq(roughness * roughness), _metallic(metallic), _emission(emission) { }
+
+public:
+    bool emitting() const override;
+    Vector3f emission(float u, float v) const override;
+	
+    [[nodiscard]] Vector3f sample_ray_out_dir(const Vector3f& ray_in_dir, const Vector3f& normal) const override;
+    [[nodiscard]] float pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const override;
+    [[nodiscard]] Vector3f contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const override;
+
+private:
+    Vector3f _albedo;
+    float _roughness;
+    float _roughness_sq;
+    float _metallic;
+    Vector3f _emission;
+};

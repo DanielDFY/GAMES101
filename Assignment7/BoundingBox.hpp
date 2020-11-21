@@ -1,11 +1,9 @@
 #pragma once
 
-#include <algorithm>
-
 #include "Ray.hpp"
-#include "Utility.hpp"
+#include "Math.hpp"
 
-struct Bounding_box {
+struct BoundingBox {
     enum class Axis { AXIS_X, AXIS_Y, AXIS_Z };
     static int axis_to_dim(Axis axis) {
         switch (axis) {
@@ -24,9 +22,9 @@ struct Bounding_box {
     Vector3f p_min = {FLOAT_INFINITY, FLOAT_INFINITY , FLOAT_INFINITY };
     Vector3f p_max = {FLOAT_LOWEST, FLOAT_LOWEST, FLOAT_LOWEST};
 
-    Bounding_box() = default;
-    Bounding_box(const Vector3f& p) : p_min(p), p_max(p) {}
-    Bounding_box(const Vector3f& p1, const Vector3f& p2)
+    BoundingBox() = default;
+    BoundingBox(const Vector3f& p) : p_min(p), p_max(p) {}
+    BoundingBox(const Vector3f& p1, const Vector3f& p2)
      : p_min(Vector3f::min_elems(p1, p2)),
        p_max(Vector3f::max_elems(p1, p2)) {}
 
@@ -43,7 +41,7 @@ struct Bounding_box {
     // offset ratio from *p_min* to *p_max* on each axis
     Vector3f offset_ratio(const Vector3f& p) const;
 
-    bool overlaps(const Bounding_box& box) const {
+    bool overlaps(const BoundingBox& box) const {
         const auto x = (p_max.x >= box.p_min.x) && (p_min.x <= box.p_max.x);
         const auto y = (p_max.y >= box.p_min.y) && (p_min.y <= box.p_max.y);
         const auto z = (p_max.z >= box.p_min.z) && (p_min.z <= box.p_max.z);
@@ -57,22 +55,22 @@ struct Bounding_box {
     }
 };
 
-inline Bounding_box intersection_box(const Bounding_box& box1, const Bounding_box& box2) {
+inline BoundingBox intersection_box(const BoundingBox& box1, const BoundingBox& box2) {
     return {
         Vector3f::max_elems(box1.p_min, box2.p_min),
         Vector3f::min_elems(box1.p_max, box2.p_max),
     };
 }
 
-inline Bounding_box union_box(const Bounding_box& box1, const Bounding_box& box2) {
-    Bounding_box ret;
+inline BoundingBox union_box(const BoundingBox& box1, const BoundingBox& box2) {
+    BoundingBox ret;
     ret.p_min = Vector3f::min_elems(box1.p_min, box2.p_min);
     ret.p_max = Vector3f::max_elems(box1.p_max, box2.p_max);
     return ret;
 }
 
-inline Bounding_box union_box(const Bounding_box& b, const Vector3f& p) {
-    Bounding_box ret;
+inline BoundingBox union_box(const BoundingBox& b, const Vector3f& p) {
+    BoundingBox ret;
     ret.p_min = Vector3f::min_elems(b.p_min, p);
     ret.p_max = Vector3f::max_elems(b.p_max, p);
     return ret;

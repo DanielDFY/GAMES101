@@ -1,6 +1,6 @@
-#include "Bounding_box.hpp"
+#include "BoundingBox.hpp"
 
-Bounding_box::Axis Bounding_box::max_extent() const {
+BoundingBox::Axis BoundingBox::max_extent() const {
     const auto d = diagonal();
     if (d.x > d.y && d.x > d.z)
         return Axis::AXIS_X;
@@ -10,7 +10,7 @@ Bounding_box::Axis Bounding_box::max_extent() const {
         return Axis::AXIS_Z;
 }
 
-bool Bounding_box::intersect(const Ray& ray) const {
+bool BoundingBox::intersect(const Ray& ray) const {
     // Test if ray bound intersects
     const auto t_pmax = (p_max - ray.ori) * ray.inv_dir;
     const auto t_pmin = (p_min - ray.ori) * ray.inv_dir;
@@ -25,7 +25,7 @@ bool Bounding_box::intersect(const Ray& ray) const {
     return (t_exit >= t_enter) && (t_exit > 0.0f);
 }
 
-Vector3f Bounding_box::offset_ratio(const Vector3f& p) const {
+Vector3f BoundingBox::offset_ratio(const Vector3f& p) const {
     Vector3f o = p - p_min;
     if (p_max.x > p_min.x)
         o.x /= p_max.x - p_min.x;

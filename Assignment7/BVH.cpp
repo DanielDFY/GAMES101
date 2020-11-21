@@ -1,13 +1,12 @@
 #include "BVH.hpp"
 
 #include <algorithm>
+#include <ctime>
 #include <cassert>
 
-#include "Bounding_box.hpp"
+BVH_tree::BVH_tree() : _root_ptr(nullptr), _split_method(SplitMethod::NAIVE) { }
 
-BVH_tree::BVH_tree() : _root_ptr(nullptr), _split_method(Split_method::NAIVE) { }
-
-BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>& obj_ptrs, Split_method split_method)
+BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>& obj_ptrs, SplitMethod split_method)
     : _split_method(split_method) {
     // Record building time
     time_t start, stop;
@@ -24,11 +23,11 @@ BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>& obj_ptrs, Split_method 
     printf( "\rBVH Generation complete: \nTime Taken: %i hrs, %i mins, %i secs\n\n", hrs, mins, secs);
 }
 
-BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>&& obj_ptrs, Split_method split_method)
+BVH_tree::BVH_tree(std::vector<std::shared_ptr<Object>>&& obj_ptrs, SplitMethod split_method)
     : BVH_tree(obj_ptrs, split_method) { }
 
-std::optional<Intersection> BVH_tree::intersect(const Ray& ray) const {
-    return intersect(_root_ptr, ray);
+std::optional<Intersection> BVH_tree::intersect(const Ray& ray, Culling culling) const {
+    return intersect(_root_ptr, ray, culling);
 }
 
 std::optional<Sample> BVH_tree::sample() const {
@@ -79,10 +78,12 @@ std::unique_ptr<BVH_node> BVH_tree::recursive_build(std::vector<std::shared_ptr<
     } else {
         // Split the objects based on chosen method
         switch(_split_method) {
-            case Split_method::NAIVE: {
+            case SplitMethod::NAIVE: {
                 return naive_partition(obj_ptrs, start, end, obj_span);
-            } case Split_method::SAH: {
+            } case SplitMethod::SAH: {
                 return sah_partition(obj_ptrs, start, end);
+            } default: {
+                throw std::runtime_error("unknown split method");
             }
         }
     }
@@ -93,12 +94,12 @@ std::unique_ptr<BVH_node> BVH_tree::naive_partition(std::vector<std::shared_ptr<
 
     // Compute the union bounding box of the centroids
     // of the bounding boxes of given range of objects.
-    Bounding_box centroid_bound;
+    BoundingBox centroid_bound;
     for (auto i = start; i < end; ++i)
         centroid_bound = union_box(centroid_bound, obj_ptrs[i]->bound().centroid());
 
     // Divide objects along the axis with max extent
-    const auto dim = Bounding_box::axis_to_dim(centroid_bound.max_extent());
+    const auto dim = BoundingBox::axis_to_dim(centroid_bound.max_extent());
 
     const auto iter_start = obj_ptrs.begin() + start;
     const auto iter_end = obj_ptrs.begin() + end;
@@ -134,7 +135,7 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
     auto node_ptr = std::make_unique<BVH_node>();
 
     // Compute bounding box of all objects in BVH node
-    Bounding_box bound;
+    BoundingBox bound;
     for (auto i = start; i < end; ++i)
         bound = union_box(bound, obj_ptrs[i]->bound());
     node_ptr->bound = bound;
@@ -142,14 +143,14 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
     // Record variables
     auto min_cost = FLOAT_INFINITY;
     int split = -1;
-    Bounding_box::Axis axis = Bounding_box::Axis::AXIS_X;
+    BoundingBox::Axis axis = BoundingBox::Axis::AXIS_X;
 
     // For each of the three axis x/y/z
-    const auto axis_list = {Bounding_box::Axis::AXIS_X, Bounding_box::Axis::AXIS_Y, Bounding_box::Axis::AXIS_Z};
+    const auto axis_list = { BoundingBox::Axis::AXIS_X, BoundingBox::Axis::AXIS_Y, BoundingBox::Axis::AXIS_Z};
     for (const auto current_axis : axis_list) {
-        const auto dim = Bounding_box::axis_to_dim(current_axis);
+        const auto dim = BoundingBox::axis_to_dim(current_axis);
 
-        std::vector<Bounding_box> box_buckets(bucket_num);
+        std::vector<BoundingBox> box_buckets(bucket_num);
         std::vector<size_t> object_counters(bucket_num);
 
         for (auto i = start; i < end; ++i) {
@@ -162,7 +163,7 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
 
         // DP preparation
         // union box and count accumulation from left to right
-        std::vector<Bounding_box> left_union_boxes(bucket_num);
+        std::vector<BoundingBox> left_union_boxes(bucket_num);
         std::vector<size_t> left_accumulation(bucket_num, 0);
         for (int current_split = 1; current_split < bucket_num; ++current_split) {
             const auto left_last_idx = current_split - 1;
@@ -171,7 +172,7 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
             left_accumulation[current_split] = object_counters[left_last_idx] + left_accumulation[prev_split];
         }
 
-        std::vector<Bounding_box> right_union_boxes(bucket_num);
+        std::vector<BoundingBox> right_union_boxes(bucket_num);
         std::vector<size_t> right_accumulation(bucket_num, 0);
 
         // union box and count accumulation from right to left
@@ -201,7 +202,7 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
 
     assert(split != -1);
 
-    const auto dim = Bounding_box::axis_to_dim(axis);
+    const auto dim = BoundingBox::axis_to_dim(axis);
 
     const auto iter_start = obj_ptrs.begin() + start;
     const auto iter_end = obj_ptrs.begin() + end;
@@ -227,16 +228,16 @@ std::unique_ptr<BVH_node> BVH_tree::sah_partition(std::vector<std::shared_ptr<Ob
     return node_ptr;
 }
 
-std::optional<Intersection> BVH_tree::intersect(const std::unique_ptr<BVH_node>& node_ptr, const Ray& ray) const {
+std::optional<Intersection> BVH_tree::intersect(const std::unique_ptr<BVH_node>& node_ptr, const Ray& ray, Culling culling) const {
     // Traverse the BVH to check intersection
     if (node_ptr == nullptr || !node_ptr->bound.intersect(ray))
         return std::nullopt;
 
     if (node_ptr->left_ptr == nullptr && node_ptr->right_ptr == nullptr && node_ptr->obj_ptr != nullptr) {
-        return node_ptr->obj_ptr->intersect(ray);
+        return node_ptr->obj_ptr->intersect(ray, culling);
     } else {
-        const auto left_intersection = intersect(node_ptr->left_ptr, ray);
-        const auto right_intersection = intersect(node_ptr->right_ptr, ray);
+        const auto left_intersection = intersect(node_ptr->left_ptr, ray, culling);
+        const auto right_intersection = intersect(node_ptr->right_ptr, ray, culling);
 
         if (left_intersection || right_intersection) {
             if (left_intersection && right_intersection) {
