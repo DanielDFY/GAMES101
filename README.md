@@ -47,9 +47,9 @@ Implement both rasterization and ray tracing.
 
   
 
-* Path Tracing (Cook–Torrance BRDF, multiple importance sampling, anti-aliasing)
+* Path Tracing (BRDF, multiple importance sampling, anti-aliasing)
 
-  ![Assignment7](Assignment7/image/output_64spp.png)
+  ![Assignment7](Assignment7/image/metal_rough_64spp.png)
 
 
 
