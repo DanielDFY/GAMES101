@@ -91,7 +91,7 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray, Culling culling)
     // Use Russian Roulette to limit the recursion depth
     if (get_random_float() < scene.russian_roulette()) {
         // sample a direction for indirect illumination
-        const auto indirect_light_source_dir = mat_ptr->sample_ray_out_dir(ray.dir, normal);
+        const auto indirect_light_source_dir = mat_ptr->sample_ray_source_dir(observer_dir, normal);
 
         // bsdf importance sampling
         const auto pdf_bsdf = mat_ptr->pdf(indirect_light_source_dir, observer_dir, normal);
