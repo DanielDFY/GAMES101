@@ -6,10 +6,10 @@
 Vector3f reflect(const Vector3f& ray_in_dir, const Vector3f& normal);
 
 // Compute refraction direction using Snell's law
-Vector3f refract(const Vector3f& ray_source_dir, const Vector3f& normal, float ior);
+Vector3f refract(const Vector3f& ray_in_dir, const Vector3f& normal, float ior);
 
 // Compute Fresnel equation
-static float fresnel(const Vector3f& ray_source_dir, const Vector3f& normal, float ior);
+static float fresnel(const Vector3f& ray_in_dir, const Vector3f& normal, float ior);
 
 class Material {
 public:
@@ -22,7 +22,7 @@ public:
     // Given the direction of the observer, calculate a random ray source direction.
     [[nodiscard]] virtual Vector3f sample_ray_source_dir(const Vector3f& ray_out_dir, const Vector3f& normal) const = 0;
 
-    // Given the directions of the ray source and ray out and a normal vector,
+    // Given the sampled ray source direction, the direction of ray out and a normal vector,
     // calculate its value of PDF (probability distribution function).
     [[nodiscard]] virtual float pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const = 0;
 
@@ -38,7 +38,7 @@ public:
     // Fresnel-Schlick approximation
     static Vector3f fresnel_schlick(float micro_surface_normal_dot_ray_out_dir, const Vector3f& f0);
     // Smith-Joint Approximation from Respawn Entertainment.
-    static float geometry(float normal_dot_observer_dir, float normal_dot_light_source_dir, float roughness_sq);
+    static float geometry(float normal_dot_light_source_dir, float normal_dot_observer_dir, float roughness_sq);
 
 	// Sample a micro-surface under the distribution function and calculate its surface normal.
     static Vector3f sample_micro_surface(const Vector3f& normal, float roughness_sq);
@@ -50,7 +50,7 @@ public:
     static float reflect_jacobian(float micro_surface_normal_dot_ray_out_dir);
     // The absolute value of the determinant of the Jacobian matrix for the transformation
     // between micro-surface normal and refracted ray.
-    static float refract_jacobian(float micro_surface_normal_dot_ray_source_dir, float micro_surface_normal_dot_ray_out_dir, float ior);
+    static float refract_jacobian(float normal_dot_ray_source_dir, float normal_dot_ray_out_dir, float micro_surface_normal_dot_ray_source_dir, float micro_surface_normal_dot_ray_out_dir, float ior);
 };
 
 // Diffuse

@@ -14,11 +14,9 @@ std::optional<Intersection> Sphere::intersect(const Ray& ray, Culling culling) {
     float t;
     if (culling == Culling::BACK) {
         t = t0;
-    }
-    else if (culling == Culling::FRONT) {
+    } else if (culling == Culling::FRONT) {
         t = t1;
-    }
-    else {
+    } else {
         t = (t0 > 0.0f) ? t0 : t1;
     }
 

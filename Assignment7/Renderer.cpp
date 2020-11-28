@@ -80,7 +80,7 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray, Culling culling)
             // balanced heuristic multiple importance sampling
             const auto pdf_sum = pdf_light_sample + pdf_bsdf;
             if (pdf_sum > 0.0f) {
-                i_direct += emission * mat_ptr->contribution(light_sample_dir, observer_dir, normal) * light_sample_dir.dot(normal) / pdf_sum;
+                i_direct += emission * mat_ptr->contribution(light_sample_dir, observer_dir, normal) * abs(light_sample_dir.dot(normal)) / pdf_sum;
             }
         }
     }
@@ -100,7 +100,7 @@ Vector3f Renderer::cast_ray(const Scene& scene, const Ray& ray, Culling culling)
             const auto next_culling = indirect_light_source_dir.dot(normal) > 0.0f ? Culling::BACK : Culling::FRONT;
             i_indirect = cast_ray(scene, { pos, indirect_light_source_dir }, next_culling)
                 * mat_ptr->contribution(indirect_light_source_dir, observer_dir, normal)
-                * indirect_light_source_dir.dot(normal)
+                * abs(indirect_light_source_dir.dot(normal))
                 / (pdf_bsdf * scene.russian_roulette());
         }
     }
