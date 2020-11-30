@@ -10,7 +10,8 @@
 * **Materials**
   * Diffuse
   * Metal-roughness workflow
-
+* Frosted glass
+  
 * **Multiple Importance Sampling** for *direct* light illumination.
 
 * **Anti-aliasing** and **multi-threading acceleration**.
@@ -19,7 +20,6 @@
 
 // todo
 
-* Transparent material
 * Bi-directional Path Tracing (BDPT)
 
 
@@ -41,10 +41,11 @@ make
 
 ## Image
 
-| Scene                                               | PT 16 spp                                         | PT 64 spp                                         |
-| --------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------- |
-| Diffuse material                                    | ![diffuse_16spp](image/diffuse_16spp.png)         | ![diffuse_64spp](image/diffuse_64spp.png)         |
-| Metal-Roughness workflow (marble box, silver bunny) | ![metal_rough_16spp](image/metal_rough_16spp.png) | ![metal_rough_64spp](image/metal_rough_64spp.png) |
+| Scene                                                    | PT 16 spp                                             | PT 64 spp                                             |
+| -------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
+| Diffuse material                                         | ![diffuse_16spp](image/diffuse_16spp.png)             | ![diffuse_64spp](image/diffuse_64spp.png)             |
+| Metal-Roughness workflow (marble box, silver bunny)      | ![metal_rough_16spp](image/metal_rough_16spp.png)     | ![metal_rough_64spp](image/metal_rough_64spp.png)     |
+| Transmission through rough surfaces (frosted glass ball) | ![frosted_glass_16spp](image/frosted_glass_16spp.png) | ![frosted_glass_64spp](image/frosted_glass_64spp.png) |
 
 
 
