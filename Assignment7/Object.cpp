@@ -24,8 +24,8 @@ std::optional<Intersection> Sphere::intersect(const Ray& ray, Culling culling) {
         return std::nullopt;
 
     Intersection intersection;
-    intersection.time = t0;
-    intersection.pos = ray.at_time(t0);
+    intersection.time = t;
+    intersection.pos = ray.at_time(t);
     const auto r = intersection.pos - _center;
     intersection.normal = r.normalized();
     intersection.uv = {

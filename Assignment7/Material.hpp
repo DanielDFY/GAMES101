@@ -8,8 +8,8 @@ Vector3f reflect(const Vector3f& ray_in_dir, const Vector3f& normal);
 // Compute refraction direction using Snell's law
 Vector3f refract(const Vector3f& ray_in_dir, const Vector3f& normal, float ior);
 
-// Compute Fresnel equation
-static float fresnel(const Vector3f& ray_in_dir, const Vector3f& normal, float ior);
+// Compute Fresnel equation, observation_dir is the incident direction of the ray out
+static float fresnel(const Vector3f& observation_dir, const Vector3f& normal, float ior);
 
 class Material {
 public:
@@ -42,15 +42,19 @@ public:
 
 	// Sample a micro-surface under the distribution function and calculate its surface normal.
     static Vector3f sample_micro_surface(const Vector3f& normal, float roughness_sq);
-    // probability distribution function for importance sampling on GTR-NDF
+    // Probability distribution function for importance sampling on GTR-NDF
     static float pdf_micro_surface(float normal_dot_micro_surface_normal, float roughness_sq);
+    // Calculate the outward micro-surface normal vector
+    static Vector3f outward_micro_surface_normal(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir,
+                                              bool is_same_side, bool is_surface_outward, float ior);
 
     // The absolute value of the determinant of the Jacobian matrix for the transformation
     // between micro-surface normal and reflected ray.
     static float reflect_jacobian(float micro_surface_normal_dot_ray_out_dir);
     // The absolute value of the determinant of the Jacobian matrix for the transformation
     // between micro-surface normal and refracted ray.
-    static float refract_jacobian(float normal_dot_ray_source_dir, float normal_dot_ray_out_dir, float micro_surface_normal_dot_ray_source_dir, float micro_surface_normal_dot_ray_out_dir, float ior);
+    static float refract_jacobian(float micro_surface_normal_dot_ray_source_dir, float ior_in,
+                                  float micro_surface_normal_dot_ray_out_dir, float ior_out);
 };
 
 // Diffuse
@@ -94,10 +98,10 @@ private:
     Vector3f _emission;
 };
 
-// Transparent
-class Transparent : public Material {
+// Frosted glass
+class FrostedGlass : public Material {
 public:
-    Transparent(float roughness, float ior, const Vector3f& emission = { 0.0f, 0.0f, 0.0f })
+    FrostedGlass(float roughness, float ior, const Vector3f& emission = {0.0f, 0.0f, 0.0f })
         : _roughness(roughness), _roughness_sq(roughness * roughness), _ior(ior), _emission(emission) { }
 
 public:

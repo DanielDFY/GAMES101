@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     const auto marble_mat_ptr = std::make_shared<MetalRough>(Vector3f(0.875f, 0.83f, 0.82f), 0.001f, 0.3f);
     const auto silver_mat_ptr = std::make_shared<MetalRough>(Vector3f(0.95f, 0.93f, 0.88f), 0.01f, 1.0f);
 
-    // const auto glass_mat_ptr = std::make_shared<Transparent>(0.2f, 1.5f);
+    const auto glass_mat_ptr = std::make_shared<FrostedGlass>(0.1f, 1.5f);
 
     const auto ceil_floor_back_wall_triangles = load_triangles_from_model_file("../models/cornellbox/floor.obj", white_diffuse_mat_ptr);
     const auto left_wall_triangles = load_triangles_from_model_file("../models/cornellbox/left.obj", red_diffuse_mat_ptr);
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     std::cout << " - Generating triangle mesh for ceiling lamp..." << std::endl;
     const auto ceiling_lamp_ptr = std::make_shared<TriangleMesh>(ceiling_lamp_triangles, BVH_tree::SplitMethod::NAIVE);
 
-    // const auto glass_ball_ptr = std::make_shared<Sphere>(Vector3f(178.0f, 328.0f, 230.0f), 50.0f, glass_mat_ptr);
+    const auto glass_ball_ptr = std::make_shared<Sphere>(Vector3f(178.0f, 328.0f, 230.0f), 50.0f, glass_mat_ptr);
 
     scene.add_object(ceil_floor_back_wall_ptr);
     scene.add_object(left_wall_ptr);
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     scene.add_object(bunny_ptr);
     scene.add_object(tall_box_ptr);
     scene.add_object(ceiling_lamp_ptr);
-    // scene.add_object(glass_ball_ptr);
+    scene.add_object(glass_ball_ptr);
 
     scene.build_BVH();
 

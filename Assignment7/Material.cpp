@@ -23,8 +23,8 @@ Vector3f refract(const Vector3f& ray_in_dir, const Vector3f& normal, float ior) 
     return k < 0.0f ? Vector3f{0.0f, 0.0f, 0.0f} : (eta * ray_in_dir + (eta * cos_i - std::sqrtf(k)) * correct_normal).normalized();
 }
 
-float fresnel(const Vector3f& ray_in_dir, const Vector3f& normal, float ior) {
-    auto cos_i = clamp(-1.0f, 1.0f, ray_in_dir.dot(normal));
+float fresnel(const Vector3f& observation_dir, const Vector3f& normal, float ior) {
+    auto cos_i = clamp(-1.0f, 1.0f, observation_dir.dot(normal));
     auto eta_i = 1.0f;
     auto eta_t = ior;
     if (cos_i > 0.0f) {
@@ -43,6 +43,8 @@ float fresnel(const Vector3f& ray_in_dir, const Vector3f& normal, float ior) {
         return (rs * rs + rp * rp) / 2;
     }
 }
+
+
 
 float Microfacet::distribution(float normal_dot_micro_surface_normal, float roughness_sq) {
     const auto normal_dot_micro_surface_normal_sq = normal_dot_micro_surface_normal * normal_dot_micro_surface_normal;
@@ -75,17 +77,35 @@ float Microfacet::pdf_micro_surface(float normal_dot_micro_surface_normal, float
     return (distribution(normal_dot_micro_surface_normal_abs, roughness_sq) * normal_dot_micro_surface_normal_abs);
 }
 
+Vector3f Microfacet::outward_micro_surface_normal(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, bool is_same_side, bool is_surface_outward, float ior) {
+    if (is_same_side) {
+        // reflection
+        if (is_surface_outward) {
+            return (ray_source_dir + ray_out_dir).normalized();
+        } else {
+            return -(ray_source_dir + ray_out_dir).normalized();
+        }
+    } else {
+        // refraction
+        if (is_surface_outward) {
+            return -(ray_out_dir + ray_source_dir * ior).normalized();
+        } else {
+            return -(ior * ray_out_dir + ray_source_dir).normalized();
+        }
+    }
+}
+
 float Microfacet::reflect_jacobian(float micro_surface_normal_dot_ray_out_dir) {
     return micro_surface_normal_dot_ray_out_dir == 0.0f ? 0.0f : 1.0f / (4 * abs(micro_surface_normal_dot_ray_out_dir));
 }
 
-float Microfacet::refract_jacobian(float normal_dot_ray_source_dir, float normal_dot_ray_out_dir, float micro_surface_normal_dot_ray_source_dir, float micro_surface_normal_dot_ray_out_dir, float ior) {
-    const auto ior_in = normal_dot_ray_source_dir < 0.0f ? ior : 1.0f;
-    const auto ior_out = normal_dot_ray_out_dir < 0.0f ? ior : 1.0f;
+float Microfacet::refract_jacobian(float micro_surface_normal_dot_ray_source_dir, float ior_in, float micro_surface_normal_dot_ray_out_dir, float ior_out) {
     auto denominator = ior_in * micro_surface_normal_dot_ray_source_dir + ior_out * micro_surface_normal_dot_ray_out_dir;
     denominator *= denominator;
     return denominator == 0.0f ? 0.0f : (ior_out * ior_out * abs(micro_surface_normal_dot_ray_out_dir)) / denominator;
 }
+
+
 
 bool Diffuse::emitting() const {
     return _emission.magnitude_squared() > 0.0f;
@@ -118,6 +138,8 @@ float Diffuse::pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, 
 Vector3f Diffuse::contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const {
     return ray_out_dir.dot(normal) > 0.0f ? _albedo * INV_PI : Vector3f(0.0f);
 }
+
+
 
 bool MetalRough::emitting() const {
     return _emission.magnitude_squared() > 0.0f;
@@ -176,15 +198,17 @@ Vector3f MetalRough::contribution(const Vector3f& ray_source_dir, const Vector3f
     return diffuse + specular;
 }
 
-bool Transparent::emitting() const {
+
+
+bool FrostedGlass::emitting() const {
     return _emission.magnitude_squared() > 0.0f;
 }
 
-Vector3f Transparent::emission(float u, float v) const {
+Vector3f FrostedGlass::emission(float u, float v) const {
     return _emission;
 }
 
-Vector3f Transparent::sample_ray_source_dir(const Vector3f& ray_out_dir, const Vector3f& normal) const {
+Vector3f FrostedGlass::sample_ray_source_dir(const Vector3f& ray_out_dir, const Vector3f& normal) const {
     // randomly choose a micro surface
     const auto micro_surface_normal = Microfacet::sample_micro_surface(normal, _roughness_sq);
     const auto observation_dir  = -ray_out_dir;
@@ -201,94 +225,71 @@ Vector3f Transparent::sample_ray_source_dir(const Vector3f& ray_out_dir, const V
     }
 }
 
-float Transparent::pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const {
+float FrostedGlass::pdf(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const {
     const auto normal_dot_ray_source_dir = normal.dot(ray_source_dir);
     const auto normal_dot_ray_out_dir = normal.dot(ray_out_dir);
     const auto observation_dir = -ray_out_dir;
 
     const auto check_ray_dir = normal_dot_ray_source_dir * normal_dot_ray_out_dir;
-    if (check_ray_dir > 0.0f) {
+    if (check_ray_dir == 0.0f)
+        return 0.0f;
+
+    const auto is_same_side = check_ray_dir > 0.0f;
+    const auto is_surface_outward = normal_dot_ray_out_dir > 0.0f;
+
+    const auto micro_surface_normal = Microfacet::outward_micro_surface_normal(ray_source_dir, ray_out_dir, is_same_side, is_surface_outward, _ior);
+    const auto f = fresnel(observation_dir, micro_surface_normal, _ior);
+
+    const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
+    const auto pdf_micro_surface = Microfacet::pdf_micro_surface(normal_dot_micro_surface_normal, _roughness_sq);
+
+    const auto micro_surface_normal_dot_ray_source_dir = micro_surface_normal.dot(ray_source_dir);
+    const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
+
+    if (is_same_side) {
         // reflection
-        auto micro_surface_normal = (ray_source_dir + ray_out_dir).normalized();
-        if (normal_dot_ray_out_dir < 0.0f) {
-            micro_surface_normal = -micro_surface_normal;
-        }
-
-        const auto f = fresnel(observation_dir, micro_surface_normal, _ior);
-
-        const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
-        const auto pdf_micro_surface = Microfacet::pdf_micro_surface(normal_dot_micro_surface_normal, _roughness_sq);
-
-        const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
         const auto jacobian = Microfacet::reflect_jacobian(micro_surface_normal_dot_ray_out_dir);
         return pdf_micro_surface * f * jacobian;
-    } else if (check_ray_dir < 0.0f) {
-        // refraction
-        Vector3f micro_surface_normal;
-        if (normal_dot_ray_out_dir < 0.0f) {
-            micro_surface_normal = -(_ior * ray_out_dir + ray_source_dir).normalized();
-        } else {
-            micro_surface_normal = -(ray_out_dir + ray_source_dir * _ior).normalized();
-        }
-
-        const auto f = fresnel(observation_dir, micro_surface_normal, _ior);
-
-        const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
-        const auto pdf_micro_surface = Microfacet::pdf_micro_surface(normal_dot_micro_surface_normal, _roughness_sq);
-
-        const auto micro_surface_normal_dot_ray_source_dir = micro_surface_normal.dot(ray_source_dir);
-        const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
-
-        const auto jacobian = Microfacet::refract_jacobian(normal_dot_ray_source_dir, normal_dot_ray_out_dir, micro_surface_normal_dot_ray_source_dir, micro_surface_normal_dot_ray_out_dir, _ior);
-        return pdf_micro_surface * (1.0f - f) * jacobian;
     } else {
-        return 0.0f;
+        // refraction
+        const auto ior_in = normal_dot_ray_source_dir < 0.0f ? _ior : 1.0f;
+        const auto ior_out = normal_dot_ray_out_dir < 0.0f ? _ior : 1.0f;
+        const auto jacobian = Microfacet::refract_jacobian(micro_surface_normal_dot_ray_source_dir, ior_in, micro_surface_normal_dot_ray_out_dir, ior_out);
+        return pdf_micro_surface * (1.0f - f) * jacobian;
     }
 }
 
-Vector3f Transparent::contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const {
+Vector3f FrostedGlass::contribution(const Vector3f& ray_source_dir, const Vector3f& ray_out_dir, const Vector3f& normal) const {
     const auto normal_dot_ray_source_dir = normal.dot(ray_source_dir);
     const auto normal_dot_ray_out_dir = normal.dot(ray_out_dir);
-    if (normal_dot_ray_source_dir == 0.0f || normal_dot_ray_out_dir == 0.0f)
+    const auto check_ray_dir = normal_dot_ray_source_dir * normal_dot_ray_out_dir;
+    if (check_ray_dir == 0.0f)
         return 0.0f;
 
-    const auto ray_in_dir = -ray_source_dir;
+    const auto observation_dir = -ray_out_dir;
+    const auto is_same_side = check_ray_dir > 0.0f;
+    const auto is_surface_outward = normal_dot_ray_out_dir > 0.0f;
 
-    const auto check_ray_dir = normal_dot_ray_source_dir * normal_dot_ray_out_dir;
-    if (check_ray_dir > 0.0f) {
+    const auto micro_surface_normal = Microfacet::outward_micro_surface_normal(ray_source_dir, ray_out_dir, is_same_side, is_surface_outward, _ior);
+
+    const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
+    const auto micro_surface_normal_dot_ray_source_dir = micro_surface_normal.dot(ray_source_dir);
+    const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
+
+    const auto D = Microfacet::distribution(normal_dot_micro_surface_normal, _roughness_sq);
+    const auto G = Microfacet::geometry(micro_surface_normal_dot_ray_source_dir, micro_surface_normal_dot_ray_out_dir, _roughness);
+    const auto F = fresnel(observation_dir, micro_surface_normal, _ior);
+
+    if (is_same_side) {
         // reflection
-        auto micro_surface_normal = (ray_source_dir + ray_out_dir).normalized();
-        if (normal_dot_ray_out_dir < 0.0f) {
-            micro_surface_normal = -micro_surface_normal;
-        }
-
-        const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
-        const auto micro_surface_normal_dot_ray_source_dir = micro_surface_normal.dot(ray_source_dir);
-        const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
-
-        const auto D = Microfacet::distribution(normal_dot_micro_surface_normal, _roughness_sq);
-        const auto G = Microfacet::geometry(micro_surface_normal_dot_ray_source_dir, micro_surface_normal_dot_ray_out_dir, _roughness);
-        const auto F = fresnel(ray_in_dir, micro_surface_normal, _ior);
-
         return D * F * G / 4.0f;   // Cook–Torrance Specular (original denominator is merged into G for Smith-Joint approximation)
     } else {
         // refraction
-        Vector3f micro_surface_normal;
-        if (normal_dot_ray_out_dir < 0.0f) {
-            micro_surface_normal = -(_ior * ray_out_dir + ray_source_dir).normalized();
-        } else {
-            micro_surface_normal = -(ray_out_dir + ray_source_dir * _ior).normalized();
-        }
+        const auto ior_in = normal_dot_ray_source_dir < 0.0f ? _ior : 1.0f;
+        const auto ior_out = normal_dot_ray_out_dir < 0.0f ? _ior : 1.0f;
 
-        const auto normal_dot_micro_surface_normal = normal.dot(micro_surface_normal);
-        const auto micro_surface_normal_dot_ray_source_dir = micro_surface_normal.dot(ray_source_dir);
-        const auto micro_surface_normal_dot_ray_out_dir = micro_surface_normal.dot(ray_out_dir);
-
-        const auto D = Microfacet::distribution(normal_dot_micro_surface_normal, _roughness_sq);
-        const auto G = Microfacet::geometry(micro_surface_normal_dot_ray_source_dir, micro_surface_normal_dot_ray_out_dir, _roughness);
-        const auto F = fresnel(ray_in_dir, micro_surface_normal, _ior);
-
-        return abs(Microfacet::refract_jacobian(normal_dot_ray_source_dir, normal_dot_ray_out_dir, micro_surface_normal_dot_ray_source_dir, micro_surface_normal_dot_ray_out_dir, _ior))
+        // Transmission (original denominator is merged into G for Smith-Joint approximation)
+        return Microfacet::refract_jacobian(micro_surface_normal_dot_ray_source_dir, ior_in, micro_surface_normal_dot_ray_out_dir, ior_out)
             * abs(micro_surface_normal_dot_ray_source_dir) * D * (1.0f - F) * G;
     }
 }
