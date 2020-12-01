@@ -40,7 +40,7 @@ cd build
 cmake ..
 
 make
-./Rasterizer	(real-time display, accept at most 4 control points through mouse-click and generate a Bézier curve. Also save the result image in to file my_bezier_curve.png)
+./Rasterizer	# real-time display, accept at most 4 control points through mouse-click and generate a Bézier curve. Also save the result image into file my_bezier_curve.png
 ```
 
 

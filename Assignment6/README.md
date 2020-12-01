@@ -34,7 +34,7 @@ cd build
 cmake ..
 
 make
-./RayTracing	(save the result image in to file output.png)
+./RayTracing	# save the result image into file output.png
 ```
 
 

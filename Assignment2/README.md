@@ -24,8 +24,8 @@ cd build
 cmake ..
 
 make
-./Rasterizer		(real-time display)
-./Rasterizer image.png	(generate the result to image.png)
+./Rasterizer		# real-time display
+./Rasterizer image.png	# generate the result to image.png
 ```
 
 

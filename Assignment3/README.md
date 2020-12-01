@@ -36,12 +36,12 @@ cd build
 cmake ..
 
 make
-./Rasterizer	(real-time display, default to normal visualizing, press A/D to rotate the model around axis-Y)
-./Rasterizer image.png normal	(generate the result of normal visualizing to image.png)
-./Rasterizer image.png phong	(generate the result of Blinn-Phong shading to image.png)
-./Rasterizer image.png texture	(generate the result of texture mapping to image.png)
-./Rasterizer image.png bump	(generate the result of bump mapping to image.png)
-./Rasterizer image.png displacement	(generate the result of displacement mapping to image.png)
+./Rasterizer	# real-time display, default to normal visualizing, press A/D to rotate the model around axis-Y
+./Rasterizer image.png normal	# generate the result of normal visualizing to image.png
+./Rasterizer image.png phong	# generate the result of Blinn-Phong shading to image.png
+./Rasterizer image.png texture	# generate the result of texture mapping to image.png
+./Rasterizer image.png bump	# generate the result of bump mapping to image.png
+./Rasterizer image.png displacement	# generate the result of displacement mapping to image.png
 ```
 
 

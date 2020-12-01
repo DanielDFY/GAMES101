@@ -30,9 +30,9 @@ cd build
 cmake ..
 
 make
-./Rasterizer		(real-time display, press A/D to rotate counter-clockwise/clockwise, ESC to exit)
-./Rasterizer -r 20	(generate output.png, rotate counter-clockwise for 20 degrees)
-./Rasterizer -r 20 image.png	(generate image.png, rotate counter-clockwise for 20 degrees)
+./Rasterizer		# real-time display, press A/D to rotate counter-clockwise/clockwise, ESC to exit
+./Rasterizer -r 20	# generate output.png, rotate counter-clockwise for 20 degrees
+./Rasterizer -r 20 image.png	# generate image.png, rotate counter-clockwise for 20 degrees
 ```
 
 
