@@ -10,7 +10,7 @@
 * **Materials**
   * Diffuse
   * Metal-roughness workflow
-* Frosted glass
+  * Frosted glass
   
 * **Multiple Importance Sampling** for *direct* light illumination.
 
