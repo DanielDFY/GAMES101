@@ -53,4 +53,6 @@ Implement both rasterization and ray tracing.
 
 
 
-* // todo
+* Rope Simulation (Semi-implicit Euler & Explicit Verlet)
+
+  ![Assignment8](Assignment8/image/semi_implicit_euler_&_explicit_verlet_1024.jpg)
